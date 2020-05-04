@@ -165,8 +165,9 @@ public class Game implements Screen, InputProcessor {
                 batch.draw(manager.get("ers.png", Texture.class), u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f);
                 font.draw(batch, u.username, u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f + 65);
             }
+            batch.end();
         }
-        batch.end();
+
         if (debugMode) renderDebug();
 
     }
