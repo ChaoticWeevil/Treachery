@@ -17,17 +17,16 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
-import com.treachery.game.Weapons.Gun;
 import com.treachery.game.messageClasses.mapRequest;
 import com.treachery.game.messageClasses.mapReceive;
 import com.treachery.game.messageClasses.playerUpdate;
 import com.treachery.game.messageClasses.serverUpdate;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -50,6 +49,7 @@ public class Game implements Screen, InputProcessor {
     StretchViewport viewport;
     Player player = new Player(this);
     ArrayList<User> userList = new ArrayList<>();
+    ArrayList<Bullet> bulletList = new ArrayList<>();
     BitmapFont font = new BitmapFont();
 
     Client client = new Client();
@@ -57,7 +57,7 @@ public class Game implements Screen, InputProcessor {
     Integer updateTime = 5;
     ShapeRenderer shapeRenderer = new ShapeRenderer();
     Hud hud = new Hud(this);
-    Array<Gun> weaponList = new Array<>();
+
 
     public Game(String ip, int port, String username, Main parent) {
         this.parent = parent;
@@ -130,6 +130,7 @@ public class Game implements Screen, InputProcessor {
                 else if (object instanceof serverUpdate) {
                     serverUpdate message = (serverUpdate) object;
                     userList = message.userList;
+                    bulletList = message.bulletList;
                 }
             }
         });
@@ -173,6 +174,10 @@ public class Game implements Screen, InputProcessor {
                 batch.draw(manager.get("ers.png", Texture.class), u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f);
                 font.draw(batch, u.username, u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f + 65);
             }
+            for (Bullet b: bulletList) {
+                batch.draw(manager.get("ers.png", Texture.class), b.x - camera.position.x + WIDTH / 2f, b.y - camera.position.y + HEIGHT / 2f);
+            }
+
             hud.render(batch);
             player.render(batch);
             batch.end();
@@ -242,6 +247,29 @@ public class Game implements Screen, InputProcessor {
         return false;
     }
 
+    public void sendProjectile (messageClasses.Projectile p) {
+        client.sendTCP(p);
+    }
+
+    @Override
+    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+//        System.out.println(screenX + ", " +  (Gdx.graphics.getHeight() -screenY));
+//        Vector2 v = new Vector2(screenX, Gdx.graphics.getHeight() - screenY);
+//        v = viewport.project(v);
+//        System.out.println(v.x + ", " +  v.y);
+        screenY = Gdx.graphics.getHeight() -screenY;
+        System.out.println(screenX + ", " + screenY);
+        screenX *= ((double) WIDTH / Gdx.graphics.getWidth());
+        screenY *= ((double) HEIGHT / Gdx.graphics.getHeight());
+        System.out.println(screenX + ", " + screenY);
+        if (button == Input.Buttons.LEFT) player.inventory.getSelectedWeapon().Shoot(new Vector2(player.x, player.y),
+                new Vector2(screenX + camera.position.x - WIDTH / 2f, screenY + camera.position.y - HEIGHT / 2f), this);
+//                new Vector2(v.x + camera.position.x - WIDTH / 2f, v.y + camera.position.y - HEIGHT / 2f), this);
+        return false;
+    }
+
+
+
     // Unused Methods
     @Override
     public void resize(int width, int height) {
@@ -271,10 +299,6 @@ public class Game implements Screen, InputProcessor {
         return false;
     }
 
-    @Override
-    public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        return false;
-    }
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {

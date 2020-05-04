@@ -1,7 +1,10 @@
 package com.treachery.game.Weapons;
 
+import com.treachery.game.Game;
+
 public class Shotgun extends Gun {
-    public Shotgun() {
+    public Shotgun(Game parent) {
+        this.parent = parent;
         damage = 5;
         velocity = 1;
         projectiles = 5;

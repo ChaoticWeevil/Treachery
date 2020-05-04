@@ -14,16 +14,26 @@ public class messageClasses {
         kryo.register(serverUpdate.class);
         kryo.register(ArrayList.class);
         kryo.register(User.class);
+        kryo.register(Projectile.class);
+        kryo.register(Bullet.class);
+        kryo.register(Vector2D.class);
     }
+
     static public class mapRequest {
         String name;
+
         public mapRequest(String name) {
             this.name = name;
         }
+
+        public mapRequest() {
+        }
     }
+
     static public class mapReceive {
         public String mapName;
     }
+
     static public class playerUpdate {
         float x;
         float y;
@@ -32,12 +42,32 @@ public class messageClasses {
             this.x = x;
             this.y = y;
         }
+
+        public playerUpdate() {
+        }
     }
+
     static public class serverUpdate {
         ArrayList<User> userList;
-        public serverUpdate(ArrayList<User> list) {
+        ArrayList<Bullet> bulletList;
+
+        public serverUpdate(ArrayList<User> list, ArrayList<Bullet> bullets) {
             userList = list;
+            bulletList = bullets;
         }
-        public  serverUpdate(){}
+
+        public serverUpdate() {
+        }
+    }
+
+    static public class Projectile {
+        public float locationX;
+        public float locationY;
+        public float targetX;
+        public float targetY;
+        public int damage;
+        public float velocity;
+
+        public String texture;
     }
 }

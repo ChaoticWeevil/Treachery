@@ -96,7 +96,7 @@ public class Player {
         final int MAX_SMG_AMMO = 80;
         final int MAX_Rifle_AMMO = 20;
 
-        Weapon slot1 = new Pistol();
+        Weapon slot1 = new Pistol(parent);
         Weapon slot2 = new Blank();
         Weapon slot3 = new Blank();
         Weapon slot4 = new Blank();
