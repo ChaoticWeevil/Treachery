@@ -31,20 +31,23 @@ public class Hud {
         if (!parent.player.inventory.slot4.texture.equals(""))batch.draw(parent.manager.get(parent.player.inventory.slot4.texture, Texture.class), 340, 10);
         parent.font.draw(batch, "4", 346, 100);
 
+        // Draws box around selected item
+        batch.end();
         parent.shapeRenderer.begin();
         parent.shapeRenderer.setColor(Color.RED);
         parent.shapeRenderer.rect(10 + 110 * (parent.player.inventory.selectedSlot - 1), 10, 100, 100);
         parent.shapeRenderer.end();
+        batch.begin();
 
 
 
         // Health and stuff
-        batch.draw(parent.manager.get("Hud/grey_panel_wide.png", Texture.class), 1056, 10);
+//        batch.draw(parent.manager.get("Hud/grey_panel_wide.png", Texture.class), 1056, 10); // Box
         batch.end();
         parent.shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         parent.shapeRenderer.setColor(25/255f, 183/255f, 22/255f, 1);
         parent.shapeRenderer.rect(1080, 80, parent.player.health * 2.5f, 20);
-        parent.shapeRenderer.setColor(Color.YELLOW);
+        parent.shapeRenderer.setColor(Color.BROWN);
         parent.shapeRenderer.rect(1080, 50, (float)parent.player.inventory.getSelectedWeapon().ammoLoaded / parent.player.inventory.getSelectedWeapon().clipSize * 250f,
                 20);
 
