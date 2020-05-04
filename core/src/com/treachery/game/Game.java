@@ -7,6 +7,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapObject;
@@ -57,6 +58,7 @@ public class Game implements Screen, InputProcessor {
     Integer updateTime = 5;
     ShapeRenderer shapeRenderer = new ShapeRenderer();
     Hud hud = new Hud(this);
+    Sprite drawBullet;
 
 
     public Game(String ip, int port, String username, Main parent) {
@@ -72,6 +74,7 @@ public class Game implements Screen, InputProcessor {
         manager.load("Hud/grey_panel.png", Texture.class);
         manager.load("Hud/grey_panel_wide.png", Texture.class);
         manager.load("Weapons/pistol.png", Texture.class);
+        manager.load("bullet.png", Texture.class);
         manager.finishLoading();
 
         messageClasses.registerClasses(client);
@@ -87,6 +90,7 @@ public class Game implements Screen, InputProcessor {
         viewport.getCamera().position.y = HEIGHT / 2f;
         shapeRenderer.setAutoShapeType(true);
 
+        drawBullet = new Sprite(manager.get("bullet.png", Texture.class));
     }
 
 
@@ -175,7 +179,10 @@ public class Game implements Screen, InputProcessor {
                 font.draw(batch, u.username, u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f + 65);
             }
             for (Bullet b: bulletList) {
-                batch.draw(manager.get("ers.png", Texture.class), b.x - camera.position.x + WIDTH / 2f, b.y - camera.position.y + HEIGHT / 2f);
+                drawBullet.setPosition(b.x - camera.position.x + WIDTH / 2f,b.y - camera.position.y + HEIGHT / 2f);
+                drawBullet.setRotation(b.angle);
+                drawBullet.draw(batch);
+//                batch.draw(manager.get("bullet.png", Texture.class), b.x - camera.position.x + WIDTH / 2f, b.y - camera.position.y + HEIGHT / 2f);
             }
 
             hud.render(batch);
@@ -254,10 +261,8 @@ public class Game implements Screen, InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         screenY = Gdx.graphics.getHeight() -screenY;
-        System.out.println(screenX + ", " + screenY);
         screenX *= ((double) WIDTH / Gdx.graphics.getWidth());
         screenY *= ((double) HEIGHT / Gdx.graphics.getHeight());
-        System.out.println(screenX + ", " + screenY);
         if (button == Input.Buttons.LEFT) player.inventory.getSelectedWeapon().Shoot(new Vector2(player.x, player.y),
                 new Vector2(screenX + camera.position.x - WIDTH / 2f, screenY + camera.position.y - HEIGHT / 2f), this);
         return false;

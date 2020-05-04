@@ -7,7 +7,7 @@ public class Pistol extends Gun {
     public Pistol (Game parent) {
         this.parent = parent;
         damage = 10;
-        velocity = 20;
+        velocity = 80;
         fireRate = 1;
         ammoType = PISTOL;
         clipSize = 8;
