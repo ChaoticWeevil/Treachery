@@ -253,10 +253,6 @@ public class Game implements Screen, InputProcessor {
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-//        System.out.println(screenX + ", " +  (Gdx.graphics.getHeight() -screenY));
-//        Vector2 v = new Vector2(screenX, Gdx.graphics.getHeight() - screenY);
-//        v = viewport.project(v);
-//        System.out.println(v.x + ", " +  v.y);
         screenY = Gdx.graphics.getHeight() -screenY;
         System.out.println(screenX + ", " + screenY);
         screenX *= ((double) WIDTH / Gdx.graphics.getWidth());
@@ -264,7 +260,6 @@ public class Game implements Screen, InputProcessor {
         System.out.println(screenX + ", " + screenY);
         if (button == Input.Buttons.LEFT) player.inventory.getSelectedWeapon().Shoot(new Vector2(player.x, player.y),
                 new Vector2(screenX + camera.position.x - WIDTH / 2f, screenY + camera.position.y - HEIGHT / 2f), this);
-//                new Vector2(v.x + camera.position.x - WIDTH / 2f, v.y + camera.position.y - HEIGHT / 2f), this);
         return false;
     }
 
