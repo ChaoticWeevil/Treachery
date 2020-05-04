@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
@@ -88,6 +89,11 @@ public class Menu implements Screen {
     @Override
     public void show() {
         Gdx.input.setInputProcessor(stage);
+        Pixmap pm = new Pixmap(Gdx.files.internal("Hud/cursor.png"));
+        Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 1, 6));
+        pm.dispose();
+
+
     }
 
     @Override

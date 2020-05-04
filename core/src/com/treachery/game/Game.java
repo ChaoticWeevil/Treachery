@@ -5,25 +5,25 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import com.treachery.game.Weapons.Gun;
 import com.treachery.game.messageClasses.mapRequest;
 import com.treachery.game.messageClasses.mapReceive;
 import com.treachery.game.messageClasses.playerUpdate;
@@ -55,7 +55,9 @@ public class Game implements Screen, InputProcessor {
     Client client = new Client();
     Boolean connected = false;
     Integer updateTime = 5;
-    ShapeRenderer debugRenderer = new ShapeRenderer();
+    ShapeRenderer shapeRenderer = new ShapeRenderer();
+    Hud hud = new Hud(this);
+    Array<Gun> weaponList = new Array<>();
 
     public Game(String ip, int port, String username, Main parent) {
         this.parent = parent;
@@ -67,6 +69,9 @@ public class Game implements Screen, InputProcessor {
         manager.load("maps/map1.tmx", TiledMap.class);
         manager.load("maps/blank.tmx", TiledMap.class);
         manager.load("ers.png", Texture.class);
+        manager.load("Hud/grey_panel.png", Texture.class);
+        manager.load("Hud/grey_panel_wide.png", Texture.class);
+        manager.load("Weapons/pistol.png", Texture.class);
         manager.finishLoading();
 
         messageClasses.registerClasses(client);
@@ -80,7 +85,7 @@ public class Game implements Screen, InputProcessor {
         viewport.apply();
         viewport.getCamera().position.x = WIDTH / 2f;
         viewport.getCamera().position.y = HEIGHT / 2f;
-        debugRenderer.setAutoShapeType(true);
+        shapeRenderer.setAutoShapeType(true);
 
     }
 
@@ -136,6 +141,9 @@ public class Game implements Screen, InputProcessor {
             }
         });
         Gdx.input.setInputProcessor(this);
+        Pixmap pm = new Pixmap(Gdx.files.internal("Hud/crosshair.png"));
+        Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 1, 6));
+        pm.dispose();
     }
 
     // Runs 100 times per second
@@ -157,15 +165,18 @@ public class Game implements Screen, InputProcessor {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         if (connected) {
             batch.setProjectionMatrix(viewport.getCamera().combined);
+            shapeRenderer.setProjectionMatrix(viewport.getCamera().combined);
             renderer.setView(camera);
             renderer.render();
             batch.begin();
-            player.render(batch);
             for (User u: userList) {
                 batch.draw(manager.get("ers.png", Texture.class), u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f);
                 font.draw(batch, u.username, u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f + 65);
             }
+            hud.render(batch);
+            player.render(batch);
             batch.end();
+
         }
 
         if (debugMode) renderDebug();
@@ -173,18 +184,23 @@ public class Game implements Screen, InputProcessor {
     }
 
     public void renderDebug() {
-        debugRenderer.setProjectionMatrix(viewport.getCamera().combined);
-        debugRenderer.begin();
-        debugRenderer.setColor(Color.WHITE);
-        debugRenderer.rect(player.x - camera.position.x + WIDTH/2f, player.y - camera.position.y + HEIGHT/2f,
+        shapeRenderer.begin();
+        shapeRenderer.setColor(Color.WHITE);
+        shapeRenderer.rect(player.x - camera.position.x + WIDTH/2f, player.y - camera.position.y + HEIGHT/2f,
                 player.width, player.height);
-        debugRenderer.setColor(Color.RED);
+        shapeRenderer.setColor(Color.RED);
 
         for (MapObject object : map.getLayers().get("Collision").getObjects()) {
             Rectangle r = ((RectangleMapObject) object).getRectangle();
-            debugRenderer.rect(r.x - camera.position.x + WIDTH / 2f, r.y - camera.position.y + HEIGHT / 2f, r.width, r.height);
+            shapeRenderer.rect(r.x - camera.position.x + WIDTH / 2f, r.y - camera.position.y + HEIGHT / 2f, r.width, r.height);
         }
-        debugRenderer.end();
+
+        shapeRenderer.line(player.x + player.width/2f - camera.position.x + WIDTH/2f,
+                player.y + player.height/2f - camera.position.y + HEIGHT/2f,
+                viewport.getCamera().unproject(new Vector3(new Vector2(Gdx.input.getX(), HEIGHT - Gdx.input.getY()), 1)).x + 8,
+                viewport.getCamera().unproject(new Vector3(new Vector2(Gdx.input.getX(), Gdx.input.getY()), 1)).y - 8);
+
+        shapeRenderer.end();
     }
 
     @Override
@@ -198,6 +214,17 @@ public class Game implements Screen, InputProcessor {
         } else if (keycode == Input.Keys.S) {
             player.down = true;
         }
+
+        if (keycode == Input.Keys.NUM_1) {
+            player.inventory.selectedSlot = 1;
+        } else if (keycode == Input.Keys.NUM_2) {
+            player.inventory.selectedSlot = 2;
+        } else if (keycode == Input.Keys.NUM_3) {
+            player.inventory.selectedSlot = 3;
+        } else if (keycode == Input.Keys.NUM_4) {
+            player.inventory.selectedSlot = 4;
+        }
+
         return false;
     }
 
@@ -214,8 +241,6 @@ public class Game implements Screen, InputProcessor {
         }
         return false;
     }
-
-
 
     // Unused Methods
     @Override
