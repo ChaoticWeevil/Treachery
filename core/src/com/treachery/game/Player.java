@@ -55,6 +55,9 @@ public class Player {
     }
 
     public boolean isBlocked(MapObjects mapObjects) {
+        if (x < 0 || y < 0 || x + width > parent.MAP_WIDTH || y + height > parent.MAP_HEIGHT) return true;
+
+
         Rectangle rect = rectPool.obtain();
         rect.set(x, y, width, height);
         for (MapObject object : mapObjects) {
