@@ -61,6 +61,7 @@ project(":core") {
         api "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
         compile "com.esotericsoftware:kryonet:2.22.0-RC1"
         compile "com.badlogicgames.gdx:gdx-box2d:$gdxVersion"
+        compile "com.strongjoshua:libgdx-inGameConsole:1.0.0"
 
 
 

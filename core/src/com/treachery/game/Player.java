@@ -28,9 +28,11 @@ public class Player {
             return new Rectangle();
         }
     };
+    boolean alive = false;
 
     Boolean up = false, down = false, left = false, right = false;
-    final int speed = 4;
+    final int speed = 3;
+    int role = 3;
 
 
     public Player(Game parent) {
@@ -61,10 +63,19 @@ public class Player {
         parent.camera.position.y = y;
     }
 
+    public void startRound() {
+        x = 1;
+        y = 1;
+        health = 100;
+        alive = true;
+        inventory = new Inventory();
+    }
+
     public void damage(int amount) {
         health -= amount;
         if (health <= 0) {
-            parent.client.stop();
+            parent.client.sendTCP(new messageClasses.Death(x, y));
+            alive = false;
         }
     }
 
@@ -88,7 +99,7 @@ public class Player {
 
 
     public void render(SpriteBatch batch) {
-        batch.draw(parent.manager.get(texture, Texture.class), parent.WIDTH / 2f, parent.HEIGHT / 2f);
+        if (alive) batch.draw(parent.manager.get(texture, Texture.class), parent.WIDTH / 2f, parent.HEIGHT / 2f);
     }
 
     public class Inventory {
@@ -110,7 +121,7 @@ public class Player {
         Weapon slot4 = new Blank();
         int selectedSlot = 1;
 
-        int pistolAmmo = 20;
+        int pistolAmmo = 999;
         int shotgunAmmo = 0;
         int smgAmmo = 0;
         int rifleAmmo = 0;

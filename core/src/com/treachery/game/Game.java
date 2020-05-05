@@ -23,6 +23,8 @@ import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
+import com.strongjoshua.console.Console;
+import com.strongjoshua.console.GUIConsole;
 import com.treachery.game.messageClasses.mapRequest;
 import com.treachery.game.messageClasses.mapReceive;
 import com.treachery.game.messageClasses.playerUpdate;
@@ -39,6 +41,13 @@ public class Game implements Screen, InputProcessor {
 
     public final int WIDTH = 1366;
     public final int HEIGHT = 768;
+    public final int INNOCENT = 1;
+    public final int TRAITOR = 2;
+    public final int MID_ROUND = 1;
+    public final int WAITING = 2;
+
+    public int gameState = 2;
+
     public int MAP_HEIGHT = 0;
     public int MAP_WIDTH = 0;
 
@@ -52,6 +61,7 @@ public class Game implements Screen, InputProcessor {
     ArrayList<User> userList = new ArrayList<>();
     ArrayList<Bullet> bulletList = new ArrayList<>();
     BitmapFont font = new BitmapFont();
+    BitmapFont fontSmall = new BitmapFont();
 
     Client client = new Client();
     Boolean connected = false;
@@ -59,6 +69,8 @@ public class Game implements Screen, InputProcessor {
     ShapeRenderer shapeRenderer = new ShapeRenderer();
     Hud hud = new Hud(this);
     Sprite drawBullet;
+    Console console = new GUIConsole();
+    String winners = "";
 
 
     public Game(String ip, int port, String username, Main parent) {
@@ -91,8 +103,10 @@ public class Game implements Screen, InputProcessor {
         shapeRenderer.setAutoShapeType(true);
 
         drawBullet = new Sprite(manager.get("bullet.png", Texture.class));
+        console.setCommandExecutor(new Commands(this));
+        console.setDisplayKeyID(Input.Keys.GRAVE);
+        console.setDisabled(false);
     }
-
 
     @Override
     public void show() {
@@ -140,6 +154,19 @@ public class Game implements Screen, InputProcessor {
                     messageClasses.Hit message = (messageClasses.Hit) object;
                     player.damage(message.damage);
                 }
+                else if (object instanceof messageClasses.RoundStart) {
+                    messageClasses.RoundStart message = (messageClasses.RoundStart) object;
+                    player.role = message.role;
+                    gameState = MID_ROUND;
+                    player.startRound();
+                }
+                else if (object instanceof messageClasses.RoundEnd) {
+                    messageClasses.RoundEnd message = (messageClasses.RoundEnd) object;
+                    gameState = WAITING;
+                    if (message.role == TRAITOR) winners = "traitors";
+                    else winners = "innocents";
+
+                }
             }
         });
         client.addListener(new Listener() {
@@ -153,6 +180,7 @@ public class Game implements Screen, InputProcessor {
         Pixmap pm = new Pixmap(Gdx.files.internal("Hud/crosshair.png"));
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 1, 6));
         pm.dispose();
+        console.resetInputProcessing();
     }
 
     // Runs 100 times per second
@@ -162,11 +190,10 @@ public class Game implements Screen, InputProcessor {
 
         updateTime -= 1;
         if (updateTime == 0) {
-            client.sendTCP(new playerUpdate(player.x, player.y));
+            client.sendTCP(new playerUpdate(player.x, player.y, player.alive));
             updateTime = 2;
         }
     }
-
 
     @Override
     public void render(float delta) {
@@ -178,6 +205,8 @@ public class Game implements Screen, InputProcessor {
             renderer.setView(camera);
             renderer.render();
             batch.begin();
+            if (gameState == MID_ROUND) fontSmall.draw(batch, "Mid round", 1, HEIGHT - 2);
+            else if (gameState == WAITING) fontSmall.draw(batch, "Waiting", 1, HEIGHT - 2);
             for (User u: userList) {
                 batch.draw(manager.get("ers.png", Texture.class), u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f);
                 font.draw(batch, u.username, u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f + 65);
@@ -191,10 +220,12 @@ public class Game implements Screen, InputProcessor {
             hud.render(batch);
             player.render(batch);
             batch.end();
+            console.draw();
 
         }
 
         if (debugMode) renderDebug();
+
 
     }
 
@@ -242,6 +273,11 @@ public class Game implements Screen, InputProcessor {
         else if (keycode == Input.Keys.R) {
             player.inventory.getSelectedWeapon().reload(this);
         }
+        else if (keycode == Input.Keys.ESCAPE) {
+            dispose();
+            parent.change_screen(new Menu(parent));
+
+        }
 
 
         return false;
@@ -268,10 +304,13 @@ public class Game implements Screen, InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         screenY = Gdx.graphics.getHeight() -screenY;
-        screenX *= ((double) WIDTH / Gdx.graphics.getWidth());
-        screenY *= ((double) HEIGHT / Gdx.graphics.getHeight());
-        if (button == Input.Buttons.LEFT) player.inventory.getSelectedWeapon().Shoot(new Vector2(player.x, player.y),
-                new Vector2(screenX + camera.position.x - WIDTH / 2f, screenY + camera.position.y - HEIGHT / 2f), this);
+        if (player.alive) {
+            screenX *= ((double) WIDTH / Gdx.graphics.getWidth());
+            screenY *= ((double) HEIGHT / Gdx.graphics.getHeight());
+            if (button == Input.Buttons.LEFT) player.inventory.getSelectedWeapon().Shoot(new Vector2(player.x, player.y),
+                    new Vector2(screenX + camera.position.x - WIDTH / 2f, screenY + camera.position.y - HEIGHT / 2f), this);
+        }
+
         return false;
     }
 
@@ -302,7 +341,6 @@ public class Game implements Screen, InputProcessor {
 
     @Override
     public boolean keyTyped(char character) {
-        if (character == "`".charAt(0)) debugMode = !debugMode;
         return false;
     }
 
