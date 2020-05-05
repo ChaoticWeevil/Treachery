@@ -18,6 +18,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.esotericsoftware.kryonet.Client;
@@ -60,6 +61,7 @@ public class Game implements Screen, InputProcessor {
     public Player player = new Player(this);
     ArrayList<User> userList = new ArrayList<>();
     ArrayList<Bullet> bulletList = new ArrayList<>();
+    ArrayList<Vector2D> bodyList = new ArrayList<>();
     BitmapFont font = new BitmapFont();
     BitmapFont fontSmall = new BitmapFont();
 
@@ -87,6 +89,7 @@ public class Game implements Screen, InputProcessor {
         manager.load("Hud/grey_panel_wide.png", Texture.class);
         manager.load("Weapons/pistol.png", Texture.class);
         manager.load("bullet.png", Texture.class);
+        manager.load("ersBody.png", Texture.class);
         manager.finishLoading();
 
         messageClasses.registerClasses(client);
@@ -159,13 +162,18 @@ public class Game implements Screen, InputProcessor {
                     player.role = message.role;
                     gameState = MID_ROUND;
                     player.startRound();
+                    bodyList.clear();
                 }
                 else if (object instanceof messageClasses.RoundEnd) {
                     messageClasses.RoundEnd message = (messageClasses.RoundEnd) object;
                     gameState = WAITING;
+                    userList = message.userList;
                     if (message.role == TRAITOR) winners = "traitors";
                     else winners = "innocents";
-
+                }
+                else if (object instanceof messageClasses.Death) {
+                    messageClasses.Death message = (messageClasses.Death) object;
+                    bodyList.add(new Vector2D(message.x, message.y));
                 }
             }
         });
@@ -208,8 +216,13 @@ public class Game implements Screen, InputProcessor {
             if (gameState == MID_ROUND) fontSmall.draw(batch, "Mid round", 1, HEIGHT - 2);
             else if (gameState == WAITING) fontSmall.draw(batch, "Waiting", 1, HEIGHT - 2);
             for (User u: userList) {
-                batch.draw(manager.get("ers.png", Texture.class), u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f);
-                font.draw(batch, u.username, u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f + 65);
+                if (u.alive) {
+                    batch.draw(manager.get("ers.png", Texture.class), u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f);
+                    font.draw(batch, u.username, u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f + 65);
+                }
+            }
+            for (Vector2D b: bodyList) {
+                batch.draw(manager.get("ersBody.png", Texture.class), (float)b.x - camera.position.x + WIDTH / 2f, (float)b.y - camera.position.y + HEIGHT / 2f);
             }
             for (Bullet b: bulletList) {
                 drawBullet.setPosition(b.x - camera.position.x + WIDTH / 2f,b.y - camera.position.y + HEIGHT / 2f);
@@ -313,7 +326,6 @@ public class Game implements Screen, InputProcessor {
 
         return false;
     }
-
 
 
     // Unused Methods
