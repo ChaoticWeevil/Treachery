@@ -15,12 +15,16 @@ public class Weapon {
     public int clipSize = 1;
     public int ammoType = 0;
     public int ammoLoaded;
+    public float cooldown = 0;
     Game parent;
 
     public void Shoot(Vector2 startPosition, Vector2 targetPosition, Game parent) {
     }
 
     public void altShoot() {
+    }
+
+    public void reload(Game parent) {
     }
 
 }

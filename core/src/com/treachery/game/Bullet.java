@@ -8,6 +8,7 @@ public class Bullet {
     Vector2D vector;
     Vector2D position;
     float angle;
+    int ownerID;
     public Bullet(float x, float y, int damage, float speed, Vector2D vector, Vector2D pos, float angle) {
         this.x = x;
         this.y = y;
@@ -17,6 +18,5 @@ public class Bullet {
         this.angle = angle;
         position = pos;
     }
-
     public Bullet(){}
 }

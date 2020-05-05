@@ -42,7 +42,6 @@ public class Hud {
 
 
         // Health and stuff
-//        batch.draw(parent.manager.get("Hud/grey_panel_wide.png", Texture.class), 1056, 10); // Box
         batch.end();
         parent.shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         parent.shapeRenderer.setColor(25/255f, 183/255f, 22/255f, 1);
@@ -54,6 +53,6 @@ public class Hud {
         parent.shapeRenderer.end();
         batch.begin();
         parent.font.draw(batch, Integer.toString(parent.player.health), 1290, 95);
-        parent.font.draw(batch, parent.player.inventory.getSelectedWeapon().ammoLoaded + " / " + parent.player.inventory.getSelectedAmmo(), 1290, 65);
+        parent.font.draw(batch, parent.player.inventory.getSelectedWeapon().ammoLoaded + " + " + parent.player.inventory.getSelectedAmmo(), 1290, 65);
     }
 }

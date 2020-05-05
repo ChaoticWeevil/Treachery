@@ -38,6 +38,7 @@ public class Player {
     }
 
     public void update() {
+        inventory.getSelectedWeapon().cooldown --;
         MapObjects objects = parent.map.getLayers().get("Collision").getObjects();
         Rectangle rectangle = rectPool.obtain();
         if (left) {
@@ -58,6 +59,13 @@ public class Player {
         }
         parent.camera.position.x = x;
         parent.camera.position.y = y;
+    }
+
+    public void damage(int amount) {
+        health -= amount;
+        if (health <= 0) {
+            parent.client.stop();
+        }
     }
 
     public boolean isBlocked(MapObjects mapObjects) {
@@ -151,6 +159,19 @@ public class Player {
                     return rifleAmmo;
             }
             return 0;
+        }
+
+        public void modifySelectedAmmo(int amount) {
+            switch (getSelectedWeapon().ammoType) {
+                case PISTOL:
+                    pistolAmmo += amount;
+                case SMG:
+                    smgAmmo += amount;
+                case SHOTGUN:
+                    shotgunAmmo += amount;
+                case RIFLE:
+                    rifleAmmo += amount;
+            }
         }
 
         public int getMaxAmmo() {

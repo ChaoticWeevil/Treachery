@@ -48,7 +48,7 @@ public class Game implements Screen, InputProcessor {
     OrthogonalTiledMapRenderer renderer;
     SpriteBatch batch;
     StretchViewport viewport;
-    Player player = new Player(this);
+    public Player player = new Player(this);
     ArrayList<User> userList = new ArrayList<>();
     ArrayList<Bullet> bulletList = new ArrayList<>();
     BitmapFont font = new BitmapFont();
@@ -136,6 +136,10 @@ public class Game implements Screen, InputProcessor {
                     userList = message.userList;
                     bulletList = message.bulletList;
                 }
+                else if (object instanceof messageClasses.Hit) {
+                    messageClasses.Hit message = (messageClasses.Hit) object;
+                    player.damage(message.damage);
+                }
             }
         });
         client.addListener(new Listener() {
@@ -182,7 +186,6 @@ public class Game implements Screen, InputProcessor {
                 drawBullet.setPosition(b.x - camera.position.x + WIDTH / 2f,b.y - camera.position.y + HEIGHT / 2f);
                 drawBullet.setRotation(b.angle);
                 drawBullet.draw(batch);
-//                batch.draw(manager.get("bullet.png", Texture.class), b.x - camera.position.x + WIDTH / 2f, b.y - camera.position.y + HEIGHT / 2f);
             }
 
             hud.render(batch);
@@ -227,7 +230,7 @@ public class Game implements Screen, InputProcessor {
             player.down = true;
         }
 
-        if (keycode == Input.Keys.NUM_1) {
+        else if (keycode == Input.Keys.NUM_1) {
             player.inventory.selectedSlot = 1;
         } else if (keycode == Input.Keys.NUM_2) {
             player.inventory.selectedSlot = 2;
@@ -236,6 +239,10 @@ public class Game implements Screen, InputProcessor {
         } else if (keycode == Input.Keys.NUM_4) {
             player.inventory.selectedSlot = 4;
         }
+        else if (keycode == Input.Keys.R) {
+            player.inventory.getSelectedWeapon().reload(this);
+        }
+
 
         return false;
     }
