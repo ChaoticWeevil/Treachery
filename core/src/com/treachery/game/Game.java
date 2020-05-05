@@ -125,7 +125,7 @@ public class Game implements Screen, InputProcessor {
         }
         client.sendTCP(new mapRequest(player.username));
         client.addListener(new Listener() {
-            public void received (Connection connection, Object object) {
+            public void received(Connection connection, Object object) {
                 if (object instanceof mapReceive) {
                     mapReceive response = (mapReceive) object;
                     map = manager.get("maps/" + response.mapName, TiledMap.class);
@@ -144,34 +144,29 @@ public class Game implements Screen, InputProcessor {
                                            update();
                                        }
                                    }
-                            , 1/100f
-                            , 1/100f
+                            , 1 / 100f
+                            , 1 / 100f
                     );
-                }
-                else if (object instanceof serverUpdate) {
+                } else if (object instanceof serverUpdate) {
                     serverUpdate message = (serverUpdate) object;
                     userList = message.userList;
                     bulletList = message.bulletList;
-                }
-                else if (object instanceof messageClasses.Hit) {
+                } else if (object instanceof messageClasses.Hit) {
                     messageClasses.Hit message = (messageClasses.Hit) object;
                     player.damage(message.damage);
-                }
-                else if (object instanceof messageClasses.RoundStart) {
+                } else if (object instanceof messageClasses.RoundStart) {
                     messageClasses.RoundStart message = (messageClasses.RoundStart) object;
                     player.role = message.role;
                     gameState = MID_ROUND;
                     player.startRound();
                     bodyList.clear();
-                }
-                else if (object instanceof messageClasses.RoundEnd) {
+                } else if (object instanceof messageClasses.RoundEnd) {
                     messageClasses.RoundEnd message = (messageClasses.RoundEnd) object;
                     gameState = WAITING;
                     userList = message.userList;
                     if (message.role == TRAITOR) winners = "traitors";
                     else winners = "innocents";
-                }
-                else if (object instanceof messageClasses.Death) {
+                } else if (object instanceof messageClasses.Death) {
                     messageClasses.Death message = (messageClasses.Death) object;
                     bodyList.add(new Vector2D(message.x, message.y));
                 }
@@ -215,19 +210,23 @@ public class Game implements Screen, InputProcessor {
             batch.begin();
             if (gameState == MID_ROUND) fontSmall.draw(batch, "Mid round", 1, HEIGHT - 2);
             else if (gameState == WAITING) fontSmall.draw(batch, "Waiting", 1, HEIGHT - 2);
-            for (User u: userList) {
-                if (u.alive) {
+            for (User u : userList) {
+                if (u.alive && player.canSee(u.x, u.y)) {
                     batch.draw(manager.get("ers.png", Texture.class), u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f);
                     font.draw(batch, u.username, u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f + 65);
                 }
             }
-            for (Vector2D b: bodyList) {
-                batch.draw(manager.get("ersBody.png", Texture.class), (float)b.x - camera.position.x + WIDTH / 2f, (float)b.y - camera.position.y + HEIGHT / 2f);
+            for (Vector2D b : bodyList) {
+                if (player.canSee((float) b.x, (float) b.y)) {
+                    batch.draw(manager.get("ersBody.png", Texture.class), (float) b.x - camera.position.x + WIDTH / 2f, (float) b.y - camera.position.y + HEIGHT / 2f);
+                }
             }
-            for (Bullet b: bulletList) {
-                drawBullet.setPosition(b.x - camera.position.x + WIDTH / 2f,b.y - camera.position.y + HEIGHT / 2f);
-                drawBullet.setRotation(b.angle);
-                drawBullet.draw(batch);
+            for (Bullet b : bulletList) {
+                if (player.canSee((float) b.x, (float) b.y)) {
+                    drawBullet.setPosition(b.x - camera.position.x + WIDTH / 2f, b.y - camera.position.y + HEIGHT / 2f);
+                    drawBullet.setRotation(b.angle);
+                    drawBullet.draw(batch);
+                }
             }
 
             hud.render(batch);
@@ -242,10 +241,11 @@ public class Game implements Screen, InputProcessor {
 
     }
 
+
     public void renderDebug() {
         shapeRenderer.begin();
         shapeRenderer.setColor(Color.WHITE);
-        shapeRenderer.rect(player.x - camera.position.x + WIDTH/2f, player.y - camera.position.y + HEIGHT/2f,
+        shapeRenderer.rect(player.x - camera.position.x + WIDTH / 2f, player.y - camera.position.y + HEIGHT / 2f,
                 player.width, player.height);
         shapeRenderer.setColor(Color.RED);
 
@@ -254,8 +254,8 @@ public class Game implements Screen, InputProcessor {
             shapeRenderer.rect(r.x - camera.position.x + WIDTH / 2f, r.y - camera.position.y + HEIGHT / 2f, r.width, r.height);
         }
 
-        shapeRenderer.line(player.x + player.width/2f - camera.position.x + WIDTH/2f,
-                player.y + player.height/2f - camera.position.y + HEIGHT/2f,
+        shapeRenderer.line(player.x + player.width / 2f - camera.position.x + WIDTH / 2f,
+                player.y + player.height / 2f - camera.position.y + HEIGHT / 2f,
                 viewport.getCamera().unproject(new Vector3(new Vector2(Gdx.input.getX(), HEIGHT - Gdx.input.getY()), 1)).x + 8,
                 viewport.getCamera().unproject(new Vector3(new Vector2(Gdx.input.getX(), Gdx.input.getY()), 1)).y - 8);
 
@@ -272,9 +272,7 @@ public class Game implements Screen, InputProcessor {
             player.up = true;
         } else if (keycode == Input.Keys.S) {
             player.down = true;
-        }
-
-        else if (keycode == Input.Keys.NUM_1) {
+        } else if (keycode == Input.Keys.NUM_1) {
             player.inventory.selectedSlot = 1;
         } else if (keycode == Input.Keys.NUM_2) {
             player.inventory.selectedSlot = 2;
@@ -282,11 +280,9 @@ public class Game implements Screen, InputProcessor {
             player.inventory.selectedSlot = 3;
         } else if (keycode == Input.Keys.NUM_4) {
             player.inventory.selectedSlot = 4;
-        }
-        else if (keycode == Input.Keys.R) {
+        } else if (keycode == Input.Keys.R) {
             player.inventory.getSelectedWeapon().reload(this);
-        }
-        else if (keycode == Input.Keys.ESCAPE) {
+        } else if (keycode == Input.Keys.ESCAPE) {
             dispose();
             parent.change_screen(new Menu(parent));
 
@@ -310,18 +306,19 @@ public class Game implements Screen, InputProcessor {
         return false;
     }
 
-    public void sendProjectile (messageClasses.Projectile p) {
+    public void sendProjectile(messageClasses.Projectile p) {
         client.sendTCP(p);
     }
 
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-        screenY = Gdx.graphics.getHeight() -screenY;
+        screenY = Gdx.graphics.getHeight() - screenY;
         if (player.alive) {
             screenX *= ((double) WIDTH / Gdx.graphics.getWidth());
             screenY *= ((double) HEIGHT / Gdx.graphics.getHeight());
-            if (button == Input.Buttons.LEFT) player.inventory.getSelectedWeapon().Shoot(new Vector2(player.x, player.y),
-                    new Vector2(screenX + camera.position.x - WIDTH / 2f, screenY + camera.position.y - HEIGHT / 2f), this);
+            if (button == Input.Buttons.LEFT)
+                player.inventory.getSelectedWeapon().Shoot(new Vector2(player.x, player.y),
+                        new Vector2(screenX + camera.position.x - WIDTH / 2f, screenY + camera.position.y - HEIGHT / 2f), this);
         }
 
         return false;
@@ -335,20 +332,24 @@ public class Game implements Screen, InputProcessor {
     }
 
     @Override
-    public void pause() {}
+    public void pause() {
+    }
 
     @Override
-    public void resume() {}
+    public void resume() {
+    }
 
     @Override
-    public void hide() {}
+    public void hide() {
+    }
 
     @Override
-    public void dispose () {
+    public void dispose() {
         batch.dispose();
         try {
             client.dispose();
-        } catch (IOException ignored) {}
+        } catch (IOException ignored) {
+        }
     }
 
     @Override

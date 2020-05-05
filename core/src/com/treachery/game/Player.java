@@ -6,7 +6,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
+import com.badlogic.gdx.math.Intersector;
+import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool;
 import com.treachery.game.Weapons.Blank;
 import com.treachery.game.Weapons.Pistol;
@@ -33,6 +36,10 @@ public class Player {
     Boolean up = false, down = false, left = false, right = false;
     final int speed = 3;
     int role = 3;
+
+    Vector2 start = new Vector2();
+    Vector2 end = new Vector2();
+    Polygon polygon = new Polygon();
 
 
     public Player(Game parent) {
@@ -77,6 +84,19 @@ public class Player {
             parent.client.sendTCP(new messageClasses.Death(x, y));
             alive = false;
         }
+    }
+    public boolean canSee(float px, float py) {
+        for (MapObject object : parent.map.getLayers().get("Collision").getObjects()) {
+            Rectangle r = ((RectangleMapObject) object).getRectangle();
+            start.set(x,y);
+            end.set(px,py);
+            polygon.setVertices(new float[]{r.x, r.y,
+                    r.x + r.width, r.y,
+                    r.x, r.y + r.height,
+                    r.x+r.width, r.y + r.height});
+            if (Intersector.intersectSegmentPolygon(start, end, polygon)) return false;
+        }
+        return true;
     }
 
     public boolean isBlocked(MapObjects mapObjects) {
