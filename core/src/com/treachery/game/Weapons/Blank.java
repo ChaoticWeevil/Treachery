@@ -5,6 +5,7 @@ public class Blank extends Gun {
         texture = "";
         clipSize = 0;
         ammoLoaded = 0;
+        blank = true;
     }
 
 }

@@ -1,6 +1,5 @@
 package com.treachery.game;
 
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapObject;
@@ -49,7 +48,6 @@ public class Player {
     public void update() {
         inventory.getSelectedWeapon().cooldown --;
         MapObjects objects = parent.map.getLayers().get("Collision").getObjects();
-        Rectangle rectangle = rectPool.obtain();
         if (left) {
             x -= speed;
             if (isBlocked(objects)) x += speed;
@@ -68,6 +66,7 @@ public class Player {
         }
         parent.camera.position.x = x;
         parent.camera.position.y = y;
+
     }
 
     public void startRound() {
@@ -85,22 +84,28 @@ public class Player {
             alive = false;
         }
     }
+
     public boolean canSee(float px, float py) {
         for (MapObject object : parent.map.getLayers().get("Collision").getObjects()) {
             Rectangle r = ((RectangleMapObject) object).getRectangle();
+            boolean wall = false;
+            try {
+                wall = object.getProperties().get("Wall", boolean.class);
+            }catch (Exception ignored){}
             start.set(x,y);
             end.set(px,py);
             polygon.setVertices(new float[]{r.x, r.y,
                     r.x + r.width, r.y,
                     r.x, r.y + r.height,
                     r.x+r.width, r.y + r.height});
-            if (Intersector.intersectSegmentPolygon(start, end, polygon)) return false;
+            if (Intersector.intersectSegmentPolygon(start, end, polygon) && wall) return false;
         }
         return true;
     }
 
     public boolean isBlocked(MapObjects mapObjects) {
         if (x < 0 || y < 0 || x + width > parent.MAP_WIDTH || y + height > parent.MAP_HEIGHT) return true;
+        if (!alive) return false;
         Rectangle rect = rectPool.obtain();
         rect.set(x, y, width, height);
         for (MapObject object : mapObjects) {
@@ -116,7 +121,6 @@ public class Player {
         r.set(0, 0, 0, 0);
         return false;
     }
-
 
     public void render(SpriteBatch batch) {
         if (alive) batch.draw(parent.manager.get(texture, Texture.class), parent.WIDTH / 2f, parent.HEIGHT / 2f);
@@ -142,9 +146,38 @@ public class Player {
         int selectedSlot = 1;
 
         int pistolAmmo = 999;
-        int shotgunAmmo = 0;
-        int smgAmmo = 0;
-        int rifleAmmo = 0;
+        int shotgunAmmo = 99;
+        int smgAmmo = 99;
+        int rifleAmmo = 99;
+
+        public void addWeapon(Weapon w) {
+            if (slot1.blank) slot1 = w;
+            else if (slot2.blank) slot2 = w;
+            else if (slot3.blank) slot3 = w;
+            else if (slot4.blank) slot4 = w;
+
+        }
+
+        public void dropWeapon() {
+            switch (selectedSlot) {
+                case 1:
+                    parent.droppedWeapons.add(new DroppedWeapon(x, y, slot1));
+                    slot1 = new Blank();
+                    break;
+                case 2:
+                    parent.droppedWeapons.add(new DroppedWeapon(x, y, slot2));
+                    slot2 = new Blank();
+                    break;
+                case 3:
+                    parent.droppedWeapons.add(new DroppedWeapon(x, y, slot3));
+                    slot3 = new Blank();
+                    break;
+                case 4:
+                    parent.droppedWeapons.add(new DroppedWeapon(x, y, slot4));
+                    slot4 = new Blank();
+                    break;
+            }
+        }
 
         public boolean hasPistol() {
             return slot1.ammoType == PISTOL || slot2.ammoType == PISTOL || slot3.ammoType == PISTOL || slot4.ammoType == PISTOL;

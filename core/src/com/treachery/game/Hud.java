@@ -20,19 +20,19 @@ public class Hud {
         if (parent.player.alive) {
             // Inventory
             batch.draw(parent.manager.get("Hud/grey_panel.png", Texture.class), 10, 10);
-            if (!parent.player.inventory.slot1.texture.equals("")) batch.draw(parent.manager.get(parent.player.inventory.slot1.texture, Texture.class), 10, 10);
+            if (!parent.player.inventory.slot1.texture.equals("")) batch.draw(parent.manager.get(parent.player.inventory.slot1.texture + "Hotbar.png", Texture.class), 10, 10);
             parent.font.draw(batch, "1", 16, 100);
 
             batch.draw(parent.manager.get("Hud/grey_panel.png", Texture.class), 120, 10);
-            if (!parent.player.inventory.slot2.texture.equals(""))batch.draw(parent.manager.get(parent.player.inventory.slot2.texture, Texture.class), 120, 10);
+            if (!parent.player.inventory.slot2.texture.equals(""))batch.draw(parent.manager.get(parent.player.inventory.slot2.texture + "Hotbar.png", Texture.class), 120, 10);
             parent.font.draw(batch, "2", 126, 100);
 
             batch.draw(parent.manager.get("Hud/grey_panel.png", Texture.class), 230, 10);
-            if (!parent.player.inventory.slot3.texture.equals(""))batch.draw(parent.manager.get(parent.player.inventory.slot3.texture, Texture.class), 230, 10);
+            if (!parent.player.inventory.slot3.texture.equals(""))batch.draw(parent.manager.get(parent.player.inventory.slot3.texture + "Hotbar.png", Texture.class), 230, 10);
             parent.font.draw(batch, "3", 236, 100);
 
             batch.draw(parent.manager.get("Hud/grey_panel.png", Texture.class), 340, 10);
-            if (!parent.player.inventory.slot4.texture.equals(""))batch.draw(parent.manager.get(parent.player.inventory.slot4.texture, Texture.class), 340, 10);
+            if (!parent.player.inventory.slot4.texture.equals(""))batch.draw(parent.manager.get(parent.player.inventory.slot4.texture + "Hotbar.png", Texture.class), 340, 10);
             parent.font.draw(batch, "4", 346, 100);
 
             // Draws box around selected item

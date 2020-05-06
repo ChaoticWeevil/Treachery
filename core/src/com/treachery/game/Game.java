@@ -18,7 +18,6 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.esotericsoftware.kryonet.Client;
@@ -26,6 +25,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.strongjoshua.console.Console;
 import com.strongjoshua.console.GUIConsole;
+import com.treachery.game.Weapons.Rifle;
 import com.treachery.game.messageClasses.mapRequest;
 import com.treachery.game.messageClasses.mapReceive;
 import com.treachery.game.messageClasses.playerUpdate;
@@ -62,6 +62,7 @@ public class Game implements Screen, InputProcessor {
     ArrayList<User> userList = new ArrayList<>();
     ArrayList<Bullet> bulletList = new ArrayList<>();
     ArrayList<Vector2D> bodyList = new ArrayList<>();
+    ArrayList<DroppedWeapon> droppedWeapons = new ArrayList<>();
     BitmapFont font = new BitmapFont();
     BitmapFont fontSmall = new BitmapFont();
 
@@ -73,6 +74,7 @@ public class Game implements Screen, InputProcessor {
     Sprite drawBullet;
     Console console = new GUIConsole();
     String winners = "";
+    boolean roundStart = false;
 
 
     public Game(String ip, int port, String username, Main parent) {
@@ -88,8 +90,11 @@ public class Game implements Screen, InputProcessor {
         manager.load("Hud/grey_panel.png", Texture.class);
         manager.load("Hud/grey_panel_wide.png", Texture.class);
         manager.load("Weapons/pistol.png", Texture.class);
+        manager.load("Weapons/pistolHotbar.png", Texture.class);
         manager.load("bullet.png", Texture.class);
         manager.load("ersBody.png", Texture.class);
+        manager.load("Weapons/rifle.png", Texture.class);
+        manager.load("Weapons/rifleHotbar.png", Texture.class);
         manager.finishLoading();
 
         messageClasses.registerClasses(client);
@@ -160,6 +165,8 @@ public class Game implements Screen, InputProcessor {
                     gameState = MID_ROUND;
                     player.startRound();
                     bodyList.clear();
+                    droppedWeapons.clear();
+                    roundStart = true;
                 } else if (object instanceof messageClasses.RoundEnd) {
                     messageClasses.RoundEnd message = (messageClasses.RoundEnd) object;
                     gameState = WAITING;
@@ -188,6 +195,10 @@ public class Game implements Screen, InputProcessor {
 
     // Runs 100 times per second
     public void update() {
+        if (roundStart) {
+            roundStart = false;
+            loadMapObjects();
+        }
         player.update();
         camera.update();
 
@@ -222,11 +233,14 @@ public class Game implements Screen, InputProcessor {
                 }
             }
             for (Bullet b : bulletList) {
-                if (player.canSee((float) b.x, (float) b.y)) {
+                if (player.canSee(b.x, b.y)) {
                     drawBullet.setPosition(b.x - camera.position.x + WIDTH / 2f, b.y - camera.position.y + HEIGHT / 2f);
                     drawBullet.setRotation(b.angle);
                     drawBullet.draw(batch);
                 }
+            }
+            for (DroppedWeapon w : droppedWeapons) {
+                batch.draw(manager.get(w.weapon.texture + ".png", Texture.class), w.x - camera.position.x + WIDTH / 2f, w.y - camera.position.y + HEIGHT / 2f);
             }
 
             hud.render(batch);
@@ -262,6 +276,19 @@ public class Game implements Screen, InputProcessor {
         shapeRenderer.end();
     }
 
+    public void loadMapObjects() {
+        for (MapObject mapObject : map.getLayers().get("Collision").getObjects()) {
+            // Load weapon drops
+            try {
+                if (mapObject.getProperties().get("gunSpawn", boolean.class)) {
+                    droppedWeapons.add(new DroppedWeapon(mapObject.getProperties().get("x", float.class), mapObject.getProperties().get("y", float.class),
+                            new Rifle(player.parent)));
+                }
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
     @Override
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.A) {
@@ -285,7 +312,22 @@ public class Game implements Screen, InputProcessor {
         } else if (keycode == Input.Keys.ESCAPE) {
             dispose();
             parent.change_screen(new Menu(parent));
-
+        }
+        else if (keycode == Input.Keys.E) {
+            //Check for dropped items
+            ArrayList<DroppedWeapon> removeList = new ArrayList<>();
+            for (DroppedWeapon w : droppedWeapons) {
+                Rectangle r = new Rectangle();
+                r.set(player.x, player.y, player.width, player.height);
+                if (r.contains(w.x, w.y)) {
+                    player.inventory.addWeapon(w.weapon);
+                    removeList.add(w);
+                }
+            }
+            droppedWeapons.removeAll(removeList);
+        }
+        else if (keycode == Input.Keys.Q) {
+            player.inventory.dropWeapon();
         }
 
 

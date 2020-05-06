@@ -16,6 +16,7 @@ public class Weapon {
     public int ammoType = 0;
     public int ammoLoaded;
     public float cooldown = 0;
+    public boolean blank = false;
     Game parent;
 
     public void Shoot(Vector2 startPosition, Vector2 targetPosition, Game parent) {
