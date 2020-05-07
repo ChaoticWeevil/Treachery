@@ -86,6 +86,7 @@ public class Player {
     }
 
     public boolean canSee(float px, float py) {
+        if (!alive) return true;
         for (MapObject object : parent.map.getLayers().get("Collision").getObjects()) {
             Rectangle r = ((RectangleMapObject) object).getRectangle();
             boolean wall = false;
@@ -150,11 +151,24 @@ public class Player {
         int smgAmmo = 99;
         int rifleAmmo = 99;
 
-        public void addWeapon(Weapon w) {
-            if (slot1.blank) slot1 = w;
-            else if (slot2.blank) slot2 = w;
-            else if (slot3.blank) slot3 = w;
-            else if (slot4.blank) slot4 = w;
+        public boolean addWeapon(Weapon w) {
+            if (slot1.blank) {
+                slot1 = w;
+                return true;
+            }
+            else if (slot2.blank) {
+                slot2 = w;
+                return true;
+            }
+            else if (slot3.blank) {
+                slot3 = w;
+                return true;
+            }
+            else if (slot4.blank) {
+                slot4 = w;
+                return true;
+            }
+            return false;
 
         }
 
@@ -162,18 +176,22 @@ public class Player {
             switch (selectedSlot) {
                 case 1:
                     parent.droppedWeapons.add(new DroppedWeapon(x, y, slot1));
+                    parent.client.sendTCP(new messageClasses.ItemDropped(x, y, slot1.ID));
                     slot1 = new Blank();
                     break;
                 case 2:
                     parent.droppedWeapons.add(new DroppedWeapon(x, y, slot2));
+                    parent.client.sendTCP(new messageClasses.ItemDropped(x, y, slot1.ID));
                     slot2 = new Blank();
                     break;
                 case 3:
                     parent.droppedWeapons.add(new DroppedWeapon(x, y, slot3));
+                    parent.client.sendTCP(new messageClasses.ItemDropped(x, y, slot1.ID));
                     slot3 = new Blank();
                     break;
                 case 4:
                     parent.droppedWeapons.add(new DroppedWeapon(x, y, slot4));
+                    parent.client.sendTCP(new messageClasses.ItemDropped(x, y, slot1.ID));
                     slot4 = new Blank();
                     break;
             }

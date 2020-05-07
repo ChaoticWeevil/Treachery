@@ -13,10 +13,15 @@ public class Pistol extends Gun {
         clipSize = 8;
         ammoLoaded = clipSize;
         texture = "Weapons/pistol";
+        ID = 1;
     }
 
     @Override
     public void Shoot(Vector2 startPosition, Vector2 targetPosition, Game parent) {
         super.Shoot(startPosition, targetPosition, parent);
+    }
+    @Override
+    public Weapon getWeapon() {
+        return new Pistol(parent);
     }
 }

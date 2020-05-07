@@ -11,5 +11,10 @@ public class Smg extends Gun {
         ammoType = SMG;
         clipSize = 30;
         ammoLoaded = clipSize;
+        ID = 5;
+    }
+    @Override
+    public Weapon getWeapon() {
+        return new Smg(parent);
     }
 }

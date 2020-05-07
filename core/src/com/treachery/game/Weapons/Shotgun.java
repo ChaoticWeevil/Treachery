@@ -12,5 +12,10 @@ public class Shotgun extends Gun {
         ammoType = SHOTGUN;
         clipSize = 8;
         ammoLoaded = clipSize;
+        ID = 2;
+    }
+    @Override
+    public Weapon getWeapon() {
+        return new Shotgun(parent);
     }
 }

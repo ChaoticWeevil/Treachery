@@ -25,7 +25,7 @@ import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 import com.strongjoshua.console.Console;
 import com.strongjoshua.console.GUIConsole;
-import com.treachery.game.Weapons.Rifle;
+import com.treachery.game.Weapons.*;
 import com.treachery.game.messageClasses.mapRequest;
 import com.treachery.game.messageClasses.mapReceive;
 import com.treachery.game.messageClasses.playerUpdate;
@@ -63,6 +63,7 @@ public class Game implements Screen, InputProcessor {
     ArrayList<Bullet> bulletList = new ArrayList<>();
     ArrayList<Vector2D> bodyList = new ArrayList<>();
     ArrayList<DroppedWeapon> droppedWeapons = new ArrayList<>();
+    Weapon[] weapons = new Weapon[] {new Pistol(this), new Shotgun(this), new Smg(this), new Rifle(this)};
     BitmapFont font = new BitmapFont();
     BitmapFont fontSmall = new BitmapFont();
 
@@ -176,6 +177,28 @@ public class Game implements Screen, InputProcessor {
                 } else if (object instanceof messageClasses.Death) {
                     messageClasses.Death message = (messageClasses.Death) object;
                     bodyList.add(new Vector2D(message.x, message.y));
+                }
+                else if (object instanceof messageClasses.ItemDropped) {
+                    messageClasses.ItemDropped message = (messageClasses.ItemDropped) object;
+                    for (Weapon w : weapons) {
+                        if (w.ID == message.weaponID) {
+                            droppedWeapons.add(new DroppedWeapon(message.x, message.y, w.getWeapon()));
+                        }
+                    }
+                }
+                else if (object instanceof messageClasses.ItemPickedUp) {
+                    messageClasses.ItemPickedUp msg = (messageClasses.ItemPickedUp) object;
+                    ArrayList<DroppedWeapon> droppedRemoveList = new ArrayList<>();
+                    for (DroppedWeapon w : droppedWeapons) {
+                        boolean same = false;
+                        for (Weapon weapon : weapons) {
+                            if (weapon.ID == msg.weaponID)  same =  (w.weapon.getWeapon() == weapon.getWeapon());
+                        }
+                        if (w.x == msg.x && w.y == msg.y) {
+                            droppedRemoveList.add(w);
+                        }
+                    }
+                    droppedWeapons.removeAll(droppedRemoveList);
                 }
             }
         });
@@ -320,7 +343,7 @@ public class Game implements Screen, InputProcessor {
                 Rectangle r = new Rectangle();
                 r.set(player.x, player.y, player.width, player.height);
                 if (r.contains(w.x, w.y)) {
-                    player.inventory.addWeapon(w.weapon);
+                    if (player.inventory.addWeapon(w.weapon)) client.sendTCP(new messageClasses.ItemPickedUp(w.x, w.y, w.weapon.ID));
                     removeList.add(w);
                 }
             }

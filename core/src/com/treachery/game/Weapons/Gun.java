@@ -42,4 +42,9 @@ public class Gun extends Weapon{
             cooldown = 100;
         }
     }
+
+    @Override
+    public Weapon getWeapon() {
+        return new Gun();
+    }
 }
