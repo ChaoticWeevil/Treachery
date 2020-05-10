@@ -21,8 +21,10 @@ public class Gun extends Weapon{
             p.targetY = targetPosition.y;
             p.damage = damage;
             p.velocity = velocity;
+            p.texture = projectileTexture;
             parent.sendProjectile(p);
             ammoLoaded -= 1;
+
         }
 
 

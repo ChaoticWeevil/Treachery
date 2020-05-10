@@ -8,6 +8,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
@@ -26,6 +27,7 @@ public class Hud {
     Skin skin = new Skin(Gdx.files.internal("skin/star-soldier-ui.json"));
     boolean buyMenuOpen = false;
     Weapon [] traitorMenuList = new Weapon[]{new Harpoon()};
+    Label buyMenuCredits = new Label("Credits: ", skin);
     public Hud(final Game parent) {
         this.parent = parent;
         buyMenu = new Window("Buy Menu", skin);
@@ -35,6 +37,8 @@ public class Hud {
                 (Gdx.graphics.getHeight() - newHeight ) / 2, newWidth , newHeight );
         buyMenu.setVisible(false);
         buyMenu.getTitleLabel().setAlignment(Align.center);
+        buyMenu.add(buyMenuCredits);
+        buyMenu.row();
         for (final Weapon w : traitorMenuList) {
             Image image = new Image(parent.manager.get("Weapons/BuyMenu/" + w.texture + ".png",Texture.class));
             image.addListener(new ClickListener() {
@@ -60,6 +64,7 @@ public class Hud {
     }
 
     public void render(SpriteBatch batch) {
+        buyMenuCredits.setText("Credits: " + parent.player.credits);
         if (parent.gameState == parent.WAITING && !parent.winners.equals("")) {
             parent.font.draw(batch, "The " + parent.winners + " have won the round", 600, 750);
         }

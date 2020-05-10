@@ -16,6 +16,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.esotericsoftware.kryonet.Client;
@@ -91,7 +92,7 @@ public class Game implements Screen, InputProcessor {
         manager.load("maps/map2.tmx", TiledMap.class);
         manager.load("maps/blank.tmx", TiledMap.class);
 
-        String[] folders = new String[]{"Hud/", "Weapons/BuyMenu/", "Weapons/Dropped/", "Weapons/Hotbar/", "OtherTextures/"};
+        String[] folders = new String[]{"Hud/", "Weapons/BuyMenu/", "Weapons/Dropped/", "Weapons/Hotbar/", "OtherTextures/", "Projectiles/"};
 
         for (String folder : folders) {
             FileHandle[] files = Gdx.files.internal("core/assets/" + folder).list();
@@ -115,7 +116,7 @@ public class Game implements Screen, InputProcessor {
         viewport.getCamera().position.y = HEIGHT / 2f;
         shapeRenderer.setAutoShapeType(true);
 
-        drawBullet = new Sprite(manager.get("OtherTextures/bullet.png", Texture.class));
+        drawBullet = new Sprite(manager.get("Projectiles/bullet.png", Texture.class));
         drawBullet.setOrigin(drawBullet.getWidth() / 2f, drawBullet.getHeight() / 2f);
         console.setCommandExecutor(new Commands(this));
         console.setDisplayKeyID(Input.Keys.GRAVE);
@@ -262,6 +263,7 @@ public class Game implements Screen, InputProcessor {
             }
             for (Bullet b : bulletList) {
                 if (player.canSee(b.x, b.y)) {
+                    drawBullet.setTexture(manager.get(b.texture, Texture.class));
                     drawBullet.setPosition(b.x - camera.position.x + WIDTH / 2f - drawBullet.getWidth() / 2f,
                             b.y - camera.position.y + HEIGHT / 2f - drawBullet.getHeight() / 2f);
                     drawBullet.setRotation(b.angle);

@@ -12,7 +12,8 @@ public class Weapon {
     public final int SMG = 3;
     public final int RIFLE = 4;
 
-    public String texture = "ers.png";
+    public String texture = "OtherTextures/ers.png";
+    public String projectileTexture = "Projectiles/bullet.png";
     public int clipSize = 1;
     public int ammoType = 0;
     public int ammoLoaded;

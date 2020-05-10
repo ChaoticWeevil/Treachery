@@ -12,9 +12,10 @@ public class Harpoon extends TraitorGun {
         damage = 100;
         ammoType = 0;
         clipSize = 1;
-        ammoLoaded = clipSize;
-        velocity = 100;
+        ammoLoaded = 1;
+        velocity = 40;
         ID = 5;
+        projectileTexture = "Projectiles/harpoon.png";
     }
 
     @Override
