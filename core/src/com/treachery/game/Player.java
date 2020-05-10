@@ -1,5 +1,7 @@
 package com.treachery.game;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapObject;
@@ -32,7 +34,7 @@ public class Player {
     };
     boolean alive = false;
 
-    Boolean up = false, down = false, left = false, right = false;
+    Boolean up = false, down = false, left = false, right = false, shooting = false;
     final int speed = 3;
     int role = 3;
 
@@ -46,6 +48,7 @@ public class Player {
     }
 
     public void update() {
+        if (shooting) shoot(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
         inventory.getSelectedWeapon().cooldown --;
         MapObjects objects = parent.map.getLayers().get("Collision").getObjects();
         if (left) {
@@ -67,6 +70,15 @@ public class Player {
         parent.camera.position.x = x;
         parent.camera.position.y = y;
 
+    }
+
+    public void shoot(float screenX, float screenY) {
+        if (alive) {
+            screenX *= ((double) parent.WIDTH / Gdx.graphics.getWidth());
+            screenY *= ((double) parent.HEIGHT / Gdx.graphics.getHeight());
+            inventory.getSelectedWeapon().Shoot(new Vector2(x, y),
+                    new Vector2(screenX + parent.camera.position.x - parent.WIDTH / 2f, screenY + parent.camera.position.y - parent.HEIGHT / 2f), parent);
+        }
     }
 
     public void startRound() {
@@ -247,12 +259,16 @@ public class Player {
             switch (getSelectedWeapon().ammoType) {
                 case PISTOL:
                     pistolAmmo += amount;
+                    break;
                 case SMG:
                     smgAmmo += amount;
+                    break;
                 case SHOTGUN:
                     shotgunAmmo += amount;
+                    break;
                 case RIFLE:
                     rifleAmmo += amount;
+                    break;
             }
         }
 

@@ -31,8 +31,10 @@ import com.treachery.game.messageClasses.mapReceive;
 import com.treachery.game.messageClasses.playerUpdate;
 import com.treachery.game.messageClasses.serverUpdate;
 
+import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Game implements Screen, InputProcessor {
     Main parent;
@@ -62,6 +64,7 @@ public class Game implements Screen, InputProcessor {
     ArrayList<User> userList = new ArrayList<>();
     ArrayList<Bullet> bulletList = new ArrayList<>();
     ArrayList<Vector2D> bodyList = new ArrayList<>();
+    ArrayList<Rectangle2D.Double> debugList;
     ArrayList<DroppedWeapon> droppedWeapons = new ArrayList<>();
     Weapon[] weapons = new Weapon[] {new Pistol(this), new Shotgun(this), new Smg(this), new Rifle(this)};
     BitmapFont font = new BitmapFont();
@@ -86,6 +89,7 @@ public class Game implements Screen, InputProcessor {
 
         manager.setLoader(TiledMap.class, new TmxMapLoader());
         manager.load("maps/map1.tmx", TiledMap.class);
+        manager.load("maps/map2.tmx", TiledMap.class);
         manager.load("maps/blank.tmx", TiledMap.class);
         manager.load("ers.png", Texture.class);
         manager.load("Hud/grey_panel.png", Texture.class);
@@ -96,6 +100,8 @@ public class Game implements Screen, InputProcessor {
         manager.load("ersBody.png", Texture.class);
         manager.load("Weapons/rifle.png", Texture.class);
         manager.load("Weapons/rifleHotbar.png", Texture.class);
+        manager.load("Weapons/smg.png", Texture.class);
+        manager.load("Weapons/smgHotbar.png", Texture.class);
         manager.finishLoading();
 
         messageClasses.registerClasses(client);
@@ -112,6 +118,7 @@ public class Game implements Screen, InputProcessor {
         shapeRenderer.setAutoShapeType(true);
 
         drawBullet = new Sprite(manager.get("bullet.png", Texture.class));
+        drawBullet.setOrigin(drawBullet.getWidth()/2f, drawBullet.getHeight()/2f);
         console.setCommandExecutor(new Commands(this));
         console.setDisplayKeyID(Input.Keys.GRAVE);
         console.setDisabled(false);
@@ -134,6 +141,7 @@ public class Game implements Screen, InputProcessor {
             public void received(Connection connection, Object object) {
                 if (object instanceof mapReceive) {
                     mapReceive response = (mapReceive) object;
+                    debugList = response.list;
                     map = manager.get("maps/" + response.mapName, TiledMap.class);
                     connected = true;
                     renderer.setMap(map);
@@ -257,13 +265,16 @@ public class Game implements Screen, InputProcessor {
             }
             for (Bullet b : bulletList) {
                 if (player.canSee(b.x, b.y)) {
-                    drawBullet.setPosition(b.x - camera.position.x + WIDTH / 2f, b.y - camera.position.y + HEIGHT / 2f);
+                    drawBullet.setPosition(b.x - camera.position.x + WIDTH / 2f - drawBullet.getWidth()/2f,
+                            b.y - camera.position.y + HEIGHT / 2f - drawBullet.getHeight()/2f);
                     drawBullet.setRotation(b.angle);
                     drawBullet.draw(batch);
                 }
             }
             for (DroppedWeapon w : droppedWeapons) {
-                batch.draw(manager.get(w.weapon.texture + ".png", Texture.class), w.x - camera.position.x + WIDTH / 2f, w.y - camera.position.y + HEIGHT / 2f);
+                batch.draw(manager.get(w.weapon.texture + ".png", Texture.class),
+                        w.x - camera.position.x + WIDTH / 2f - manager.get(w.weapon.texture + ".png", Texture.class).getWidth()/2f,
+                        w.y - camera.position.y + HEIGHT / 2f - manager.get(w.weapon.texture + ".png", Texture.class).getHeight()/2f);
             }
 
             hud.render(batch);
@@ -286,9 +297,12 @@ public class Game implements Screen, InputProcessor {
                 player.width, player.height);
         shapeRenderer.setColor(Color.RED);
 
-        for (MapObject object : map.getLayers().get("Collision").getObjects()) {
-            Rectangle r = ((RectangleMapObject) object).getRectangle();
-            shapeRenderer.rect(r.x - camera.position.x + WIDTH / 2f, r.y - camera.position.y + HEIGHT / 2f, r.width, r.height);
+//        for (MapObject object : map.getLayers().get("Collision").getObjects()) {
+//            Rectangle r = ((RectangleMapObject) object).getRectangle();
+//            shapeRenderer.rect(r.x - camera.position.x + WIDTH / 2f, r.y - camera.position.y + HEIGHT / 2f, r.width, r.height);
+//        }
+        for (Rectangle2D.Double r : debugList) {
+            shapeRenderer.rect((float)r.x - camera.position.x + WIDTH / 2f, (float)r.y - camera.position.y + HEIGHT / 2f, (float)r.width, (float)r.height);
         }
 
         shapeRenderer.line(player.x + player.width / 2f - camera.position.x + WIDTH / 2f,
@@ -304,8 +318,17 @@ public class Game implements Screen, InputProcessor {
             // Load weapon drops
             try {
                 if (mapObject.getProperties().get("gunSpawn", boolean.class)) {
-                    droppedWeapons.add(new DroppedWeapon(mapObject.getProperties().get("x", float.class), mapObject.getProperties().get("y", float.class),
-                            new Rifle(player.parent)));
+                    switch (new Random().nextInt(2)) {
+                        case 0:
+                            droppedWeapons.add(new DroppedWeapon(mapObject.getProperties().get("x", float.class), mapObject.getProperties().get("y", float.class),
+                                    new Rifle(player.parent)));
+                            break;
+                        case 1:
+                            droppedWeapons.add(new DroppedWeapon(mapObject.getProperties().get("x", float.class), mapObject.getProperties().get("y", float.class),
+                                    new Smg(player.parent)));
+                            break;
+                    }
+
                 }
             } catch (Exception ignored) {
             }
@@ -343,8 +366,10 @@ public class Game implements Screen, InputProcessor {
                 Rectangle r = new Rectangle();
                 r.set(player.x, player.y, player.width, player.height);
                 if (r.contains(w.x, w.y)) {
-                    if (player.inventory.addWeapon(w.weapon)) client.sendTCP(new messageClasses.ItemPickedUp(w.x, w.y, w.weapon.ID));
-                    removeList.add(w);
+                    if (player.inventory.addWeapon(w.weapon)) {
+                        client.sendTCP(new messageClasses.ItemPickedUp(w.x, w.y, w.weapon.ID));
+                        removeList.add(w);
+                    }
                 }
             }
             droppedWeapons.removeAll(removeList);
@@ -378,12 +403,9 @@ public class Game implements Screen, InputProcessor {
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         screenY = Gdx.graphics.getHeight() - screenY;
-        if (player.alive) {
-            screenX *= ((double) WIDTH / Gdx.graphics.getWidth());
-            screenY *= ((double) HEIGHT / Gdx.graphics.getHeight());
-            if (button == Input.Buttons.LEFT)
-                player.inventory.getSelectedWeapon().Shoot(new Vector2(player.x, player.y),
-                        new Vector2(screenX + camera.position.x - WIDTH / 2f, screenY + camera.position.y - HEIGHT / 2f), this);
+        if (button == Input.Buttons.LEFT) {
+            if (player.inventory.getSelectedWeapon().automatic) player.shooting = true;
+            else player.shoot(screenX, screenY);
         }
 
         return false;
@@ -425,6 +447,9 @@ public class Game implements Screen, InputProcessor {
 
     @Override
     public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+        if (button == Input.Buttons.LEFT) {
+            if (player.shooting) player.shooting = false;
+        }
         return false;
     }
 

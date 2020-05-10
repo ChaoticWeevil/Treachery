@@ -3,6 +3,7 @@ package com.treachery.game;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryonet.EndPoint;
 
+import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
 public class messageClasses {
@@ -23,6 +24,7 @@ public class messageClasses {
         kryo.register(RoundEnd.class);
         kryo.register(ItemDropped.class);
         kryo.register(ItemPickedUp.class);
+        kryo.register(Rectangle2D.Double.class);
     }
 
     static public class mapRequest {
@@ -38,6 +40,7 @@ public class messageClasses {
 
     static public class mapReceive {
         public String mapName;
+        ArrayList<Rectangle2D.Double> list;
     }
 
     static public class playerUpdate {
