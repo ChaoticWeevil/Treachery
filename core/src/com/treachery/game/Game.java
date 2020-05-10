@@ -95,7 +95,19 @@ public class Game implements Screen, InputProcessor {
         String[] folders = new String[]{"Hud/", "Weapons/BuyMenu/", "Weapons/Dropped/", "Weapons/Hotbar/", "OtherTextures/", "Projectiles/"};
 
         for (String folder : folders) {
-            FileHandle[] files = Gdx.files.internal("core/assets/" + folder).list();
+            FileHandle[] files;
+            // Very bad code that will likely be the cause of many crashes/problems in the future
+            if (!(Game.class.getResource("Game.class").toString().contains("core"))) {
+                files = JarUtils.listFromJarIfNecessary(folder);
+                System.out.println(1);
+            }
+            else {
+                System.out.println(2);
+                files = Gdx.files.internal("core/assets/" + folder).list();
+            }
+
+
+
             for (FileHandle file : files) {
                 manager.load((folder + file.name()), Texture.class);
             }
