@@ -11,7 +11,7 @@ public class Rifle extends Gun {
         ammoType = RIFLE;
         clipSize = 5;
         ammoLoaded = clipSize;
-        texture = "Weapons/rifle";
+        texture = "rifle";
         ID = 4;
     }
     @Override

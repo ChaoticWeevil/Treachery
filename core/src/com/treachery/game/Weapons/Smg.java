@@ -11,7 +11,7 @@ public class Smg extends Gun {
         ammoType = SMG;
         clipSize = 30;
         ammoLoaded = clipSize;
-        texture = "Weapons/smg";
+        texture = "smg";
         automatic = true;
         ID = 5;
     }

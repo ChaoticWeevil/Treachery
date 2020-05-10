@@ -24,6 +24,7 @@ public class Player {
     float width = 50;
     float height = 50;
     int health = 100;
+    int credits = 0;
     String texture = "ers.png";
     String username;
     Pool<Rectangle> rectPool = new Pool<Rectangle>() {
@@ -87,6 +88,7 @@ public class Player {
         health = 100;
         alive = true;
         inventory = new Inventory();
+        if (role == parent.TRAITOR) credits = 4;
     }
 
     public void damage(int amount) {
@@ -136,7 +138,7 @@ public class Player {
     }
 
     public void render(SpriteBatch batch) {
-        if (alive) batch.draw(parent.manager.get(texture, Texture.class), parent.WIDTH / 2f, parent.HEIGHT / 2f);
+        if (alive) batch.draw(parent.manager.get("OtherTextures/" + texture, Texture.class), parent.WIDTH / 2f, parent.HEIGHT / 2f);
     }
 
     public class Inventory {
@@ -163,47 +165,54 @@ public class Player {
         int smgAmmo = 99;
         int rifleAmmo = 99;
 
-        public boolean addWeapon(Weapon w) {
+        public void addWeapon(Weapon w) {
             if (slot1.blank) {
                 slot1 = w;
-                return true;
             }
             else if (slot2.blank) {
                 slot2 = w;
-                return true;
             }
             else if (slot3.blank) {
                 slot3 = w;
-                return true;
             }
             else if (slot4.blank) {
                 slot4 = w;
-                return true;
             }
-            return false;
+            else {
+                parent.droppedWeapons.add(new DroppedWeapon(x, y, w));
+                parent.client.sendTCP(new messageClasses.ItemDropped(x, y, w.ID));
+            }
 
         }
 
         public void dropWeapon() {
             switch (selectedSlot) {
                 case 1:
-                    parent.droppedWeapons.add(new DroppedWeapon(x, y, slot1));
-                    parent.client.sendTCP(new messageClasses.ItemDropped(x, y, slot1.ID));
+                    if (!(slot1.ammoType == NONE && slot1.ammoLoaded == 0)) {
+                        parent.droppedWeapons.add(new DroppedWeapon(x, y, slot1));
+                        parent.client.sendTCP(new messageClasses.ItemDropped(x, y, slot1.ID));
+                    }
                     slot1 = new Blank();
                     break;
                 case 2:
-                    parent.droppedWeapons.add(new DroppedWeapon(x, y, slot2));
-                    parent.client.sendTCP(new messageClasses.ItemDropped(x, y, slot1.ID));
+                    if (!(slot2.ammoType == NONE && slot2.ammoLoaded == 0)) {
+                        parent.droppedWeapons.add(new DroppedWeapon(x, y, slot2));
+                        parent.client.sendTCP(new messageClasses.ItemDropped(x, y, slot1.ID));
+                    }
                     slot2 = new Blank();
                     break;
                 case 3:
-                    parent.droppedWeapons.add(new DroppedWeapon(x, y, slot3));
-                    parent.client.sendTCP(new messageClasses.ItemDropped(x, y, slot1.ID));
+                    if (!(slot3.ammoType == NONE && slot3.ammoLoaded == 0)) {
+                        parent.droppedWeapons.add(new DroppedWeapon(x, y, slot3));
+                        parent.client.sendTCP(new messageClasses.ItemDropped(x, y, slot1.ID));
+                    }
                     slot3 = new Blank();
                     break;
                 case 4:
-                    parent.droppedWeapons.add(new DroppedWeapon(x, y, slot4));
-                    parent.client.sendTCP(new messageClasses.ItemDropped(x, y, slot1.ID));
+                    if (!(slot4.ammoType == NONE && slot4.ammoLoaded == 0)) {
+                        parent.droppedWeapons.add(new DroppedWeapon(x, y, slot4));
+                        parent.client.sendTCP(new messageClasses.ItemDropped(x, y, slot1.ID));
+                    }
                     slot4 = new Blank();
                     break;
             }

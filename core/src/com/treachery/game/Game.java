@@ -1,10 +1,8 @@
 package com.treachery.game;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.*;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.*;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -32,6 +30,7 @@ import com.treachery.game.messageClasses.playerUpdate;
 import com.treachery.game.messageClasses.serverUpdate;
 
 import java.awt.geom.Rectangle2D;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -66,7 +65,7 @@ public class Game implements Screen, InputProcessor {
     ArrayList<Vector2D> bodyList = new ArrayList<>();
     ArrayList<Rectangle2D.Double> debugList;
     ArrayList<DroppedWeapon> droppedWeapons = new ArrayList<>();
-    Weapon[] weapons = new Weapon[] {new Pistol(this), new Shotgun(this), new Smg(this), new Rifle(this)};
+    Weapon[] weapons = new Weapon[]{new Pistol(this), new Shotgun(this), new Smg(this), new Rifle(this)};
     BitmapFont font = new BitmapFont();
     BitmapFont fontSmall = new BitmapFont();
 
@@ -74,7 +73,7 @@ public class Game implements Screen, InputProcessor {
     Boolean connected = false;
     Integer updateTime = 5;
     ShapeRenderer shapeRenderer = new ShapeRenderer();
-    Hud hud = new Hud(this);
+    Hud hud;
     Sprite drawBullet;
     Console console = new GUIConsole();
     String winners = "";
@@ -91,18 +90,17 @@ public class Game implements Screen, InputProcessor {
         manager.load("maps/map1.tmx", TiledMap.class);
         manager.load("maps/map2.tmx", TiledMap.class);
         manager.load("maps/blank.tmx", TiledMap.class);
-        manager.load("ers.png", Texture.class);
-        manager.load("Hud/grey_panel.png", Texture.class);
-        manager.load("Hud/grey_panel_wide.png", Texture.class);
-        manager.load("Weapons/pistol.png", Texture.class);
-        manager.load("Weapons/pistolHotbar.png", Texture.class);
-        manager.load("bullet.png", Texture.class);
-        manager.load("ersBody.png", Texture.class);
-        manager.load("Weapons/rifle.png", Texture.class);
-        manager.load("Weapons/rifleHotbar.png", Texture.class);
-        manager.load("Weapons/smg.png", Texture.class);
-        manager.load("Weapons/smgHotbar.png", Texture.class);
+
+        String[] folders = new String[]{"Hud/", "Weapons/BuyMenu/", "Weapons/Dropped/", "Weapons/Hotbar/", "OtherTextures/"};
+
+        for (String folder : folders) {
+            FileHandle[] files = Gdx.files.internal("core/assets/" + folder).list();
+            for (FileHandle file : files) {
+                manager.load((folder + file.name()), Texture.class);
+            }
+        }
         manager.finishLoading();
+        hud = new Hud(this);
 
         messageClasses.registerClasses(client);
         batch = new SpriteBatch();
@@ -117,12 +115,13 @@ public class Game implements Screen, InputProcessor {
         viewport.getCamera().position.y = HEIGHT / 2f;
         shapeRenderer.setAutoShapeType(true);
 
-        drawBullet = new Sprite(manager.get("bullet.png", Texture.class));
-        drawBullet.setOrigin(drawBullet.getWidth()/2f, drawBullet.getHeight()/2f);
+        drawBullet = new Sprite(manager.get("OtherTextures/bullet.png", Texture.class));
+        drawBullet.setOrigin(drawBullet.getWidth() / 2f, drawBullet.getHeight() / 2f);
         console.setCommandExecutor(new Commands(this));
         console.setDisplayKeyID(Input.Keys.GRAVE);
         console.setDisabled(false);
     }
+
 
     @Override
     public void show() {
@@ -185,22 +184,20 @@ public class Game implements Screen, InputProcessor {
                 } else if (object instanceof messageClasses.Death) {
                     messageClasses.Death message = (messageClasses.Death) object;
                     bodyList.add(new Vector2D(message.x, message.y));
-                }
-                else if (object instanceof messageClasses.ItemDropped) {
+                } else if (object instanceof messageClasses.ItemDropped) {
                     messageClasses.ItemDropped message = (messageClasses.ItemDropped) object;
                     for (Weapon w : weapons) {
                         if (w.ID == message.weaponID) {
                             droppedWeapons.add(new DroppedWeapon(message.x, message.y, w.getWeapon()));
                         }
                     }
-                }
-                else if (object instanceof messageClasses.ItemPickedUp) {
+                } else if (object instanceof messageClasses.ItemPickedUp) {
                     messageClasses.ItemPickedUp msg = (messageClasses.ItemPickedUp) object;
                     ArrayList<DroppedWeapon> droppedRemoveList = new ArrayList<>();
                     for (DroppedWeapon w : droppedWeapons) {
                         boolean same = false;
                         for (Weapon weapon : weapons) {
-                            if (weapon.ID == msg.weaponID)  same =  (w.weapon.getWeapon() == weapon.getWeapon());
+                            if (weapon.ID == msg.weaponID) same = (w.weapon.getWeapon() == weapon.getWeapon());
                         }
                         if (w.x == msg.x && w.y == msg.y) {
                             droppedRemoveList.add(w);
@@ -217,7 +214,7 @@ public class Game implements Screen, InputProcessor {
 
             }
         });
-        Gdx.input.setInputProcessor(this);
+        Gdx.input.setInputProcessor(new InputMultiplexer(this, hud.stage));
         Pixmap pm = new Pixmap(Gdx.files.internal("Hud/crosshair.png"));
         Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 1, 6));
         pm.dispose();
@@ -254,31 +251,30 @@ public class Game implements Screen, InputProcessor {
             else if (gameState == WAITING) fontSmall.draw(batch, "Waiting", 1, HEIGHT - 2);
             for (User u : userList) {
                 if (u.alive && player.canSee(u.x, u.y)) {
-                    batch.draw(manager.get("ers.png", Texture.class), u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f);
+                    batch.draw(manager.get("OtherTextures/ers.png", Texture.class), u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f);
                     font.draw(batch, u.username, u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f + 65);
                 }
             }
             for (Vector2D b : bodyList) {
                 if (player.canSee((float) b.x, (float) b.y)) {
-                    batch.draw(manager.get("ersBody.png", Texture.class), (float) b.x - camera.position.x + WIDTH / 2f, (float) b.y - camera.position.y + HEIGHT / 2f);
+                    batch.draw(manager.get("OtherTextures/ersBody.png", Texture.class), (float) b.x - camera.position.x + WIDTH / 2f, (float) b.y - camera.position.y + HEIGHT / 2f);
                 }
             }
             for (Bullet b : bulletList) {
                 if (player.canSee(b.x, b.y)) {
-                    drawBullet.setPosition(b.x - camera.position.x + WIDTH / 2f - drawBullet.getWidth()/2f,
-                            b.y - camera.position.y + HEIGHT / 2f - drawBullet.getHeight()/2f);
+                    drawBullet.setPosition(b.x - camera.position.x + WIDTH / 2f - drawBullet.getWidth() / 2f,
+                            b.y - camera.position.y + HEIGHT / 2f - drawBullet.getHeight() / 2f);
                     drawBullet.setRotation(b.angle);
                     drawBullet.draw(batch);
                 }
             }
             for (DroppedWeapon w : droppedWeapons) {
-                batch.draw(manager.get(w.weapon.texture + ".png", Texture.class),
-                        w.x - camera.position.x + WIDTH / 2f - manager.get(w.weapon.texture + ".png", Texture.class).getWidth()/2f,
-                        w.y - camera.position.y + HEIGHT / 2f - manager.get(w.weapon.texture + ".png", Texture.class).getHeight()/2f);
+                batch.draw(manager.get("Weapons/Dropped/" + w.weapon.texture + ".png", Texture.class),
+                        w.x - camera.position.x + WIDTH / 2f - manager.get("Weapons/Dropped/" + w.weapon.texture + ".png", Texture.class).getWidth() / 2f,
+                        w.y - camera.position.y + HEIGHT / 2f - manager.get("Weapons/Dropped/" + w.weapon.texture + ".png", Texture.class).getHeight() / 2f);
             }
-
-            hud.render(batch);
             player.render(batch);
+            hud.render(batch);
             batch.end();
             console.draw();
 
@@ -302,7 +298,7 @@ public class Game implements Screen, InputProcessor {
 //            shapeRenderer.rect(r.x - camera.position.x + WIDTH / 2f, r.y - camera.position.y + HEIGHT / 2f, r.width, r.height);
 //        }
         for (Rectangle2D.Double r : debugList) {
-            shapeRenderer.rect((float)r.x - camera.position.x + WIDTH / 2f, (float)r.y - camera.position.y + HEIGHT / 2f, (float)r.width, (float)r.height);
+            shapeRenderer.rect((float) r.x - camera.position.x + WIDTH / 2f, (float) r.y - camera.position.y + HEIGHT / 2f, (float) r.width, (float) r.height);
         }
 
         shapeRenderer.line(player.x + player.width / 2f - camera.position.x + WIDTH / 2f,
@@ -358,24 +354,25 @@ public class Game implements Screen, InputProcessor {
         } else if (keycode == Input.Keys.ESCAPE) {
             dispose();
             parent.change_screen(new Menu(parent));
-        }
-        else if (keycode == Input.Keys.E) {
+        } else if (keycode == Input.Keys.E) {
             //Check for dropped items
             ArrayList<DroppedWeapon> removeList = new ArrayList<>();
             for (DroppedWeapon w : droppedWeapons) {
                 Rectangle r = new Rectangle();
                 r.set(player.x, player.y, player.width, player.height);
                 if (r.contains(w.x, w.y)) {
-                    if (player.inventory.addWeapon(w.weapon)) {
-                        client.sendTCP(new messageClasses.ItemPickedUp(w.x, w.y, w.weapon.ID));
-                        removeList.add(w);
-                    }
+                    player.inventory.addWeapon(w.weapon);
+                    client.sendTCP(new messageClasses.ItemPickedUp(w.x, w.y, w.weapon.ID));
+                    removeList.add(w);
+
                 }
             }
             droppedWeapons.removeAll(removeList);
-        }
-        else if (keycode == Input.Keys.Q) {
+        } else if (keycode == Input.Keys.Q) {
             player.inventory.dropWeapon();
+        } else if (keycode == Input.Keys.B && player.role == TRAITOR) {
+            hud.buyMenuOpen = !hud.buyMenuOpen;
+            hud.buyMenu.setVisible(hud.buyMenuOpen);
         }
 
 
@@ -404,8 +401,10 @@ public class Game implements Screen, InputProcessor {
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         screenY = Gdx.graphics.getHeight() - screenY;
         if (button == Input.Buttons.LEFT) {
-            if (player.inventory.getSelectedWeapon().automatic) player.shooting = true;
-            else player.shoot(screenX, screenY);
+            if (!hud.buyMenuOpen) {
+                if (player.inventory.getSelectedWeapon().automatic) player.shooting = true;
+                else player.shoot(screenX, screenY);
+            }
         }
 
         return false;

@@ -12,7 +12,7 @@ public class Pistol extends Gun {
         ammoType = PISTOL;
         clipSize = 8;
         ammoLoaded = clipSize;
-        texture = "Weapons/pistol";
+        texture = "pistol";
         ID = 1;
     }
 
