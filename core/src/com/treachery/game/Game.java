@@ -16,7 +16,6 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.esotericsoftware.kryonet.Client;
@@ -29,9 +28,7 @@ import com.treachery.game.messageClasses.mapRequest;
 import com.treachery.game.messageClasses.mapReceive;
 import com.treachery.game.messageClasses.playerUpdate;
 import com.treachery.game.messageClasses.serverUpdate;
-
 import java.awt.geom.Rectangle2D;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
@@ -213,10 +210,6 @@ public class Game implements Screen, InputProcessor {
                             messageClasses.ItemPickedUp msg = (messageClasses.ItemPickedUp) o;
                             ArrayList<DroppedWeapon> droppedRemoveList = new ArrayList<>();
                             for (DroppedWeapon w : droppedWeapons) {
-                                boolean same = false;
-                                for (Weapon weapon : weapons) {
-                                    if (weapon.ID == msg.weaponID) same = (w.weapon.getWeapon() == weapon.getWeapon());
-                                }
                                 if (w.x == msg.x && w.y == msg.y) {
                                     droppedRemoveList.add(w);
                                 }

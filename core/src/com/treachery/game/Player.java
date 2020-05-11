@@ -148,10 +148,10 @@ public class Player {
         final int SMG = 3;
         final int RIFLE = 4;
 
-        final int MAX_PISTOL_AMMO = 40;
-        final int MAX_SHOTGUN_AMMO = 24;
-        final int MAX_SMG_AMMO = 80;
-        final int MAX_Rifle_AMMO = 20;
+//        final int MAX_PISTOL_AMMO = 40;
+//        final int MAX_SHOTGUN_AMMO = 24;
+//        final int MAX_SMG_AMMO = 80;
+//        final int MAX_Rifle_AMMO = 20;
 
         Weapon slot1 = new Pistol(parent);
         Weapon slot2 = new Blank();
@@ -217,21 +217,21 @@ public class Player {
             }
         }
 
-        public boolean hasPistol() {
-            return slot1.ammoType == PISTOL || slot2.ammoType == PISTOL || slot3.ammoType == PISTOL || slot4.ammoType == PISTOL;
-        }
-
-        public boolean hasShotgun() {
-            return slot1.ammoType == SHOTGUN || slot2.ammoType == SHOTGUN || slot3.ammoType == SHOTGUN || slot4.ammoType == SHOTGUN;
-        }
-
-        public boolean hasSmg() {
-            return slot1.ammoType == SMG || slot2.ammoType == SMG || slot3.ammoType == SMG || slot4.ammoType == SMG;
-        }
-
-        public boolean hasRifle() {
-            return slot1.ammoType == RIFLE || slot2.ammoType == RIFLE || slot3.ammoType == RIFLE || slot4.ammoType == RIFLE;
-        }
+//        public boolean hasPistol() {
+//            return slot1.ammoType == PISTOL || slot2.ammoType == PISTOL || slot3.ammoType == PISTOL || slot4.ammoType == PISTOL;
+//        }
+//
+//        public boolean hasShotgun() {
+//            return slot1.ammoType == SHOTGUN || slot2.ammoType == SHOTGUN || slot3.ammoType == SHOTGUN || slot4.ammoType == SHOTGUN;
+//        }
+//
+//        public boolean hasSmg() {
+//            return slot1.ammoType == SMG || slot2.ammoType == SMG || slot3.ammoType == SMG || slot4.ammoType == SMG;
+//        }
+//
+//        public boolean hasRifle() {
+//            return slot1.ammoType == RIFLE || slot2.ammoType == RIFLE || slot3.ammoType == RIFLE || slot4.ammoType == RIFLE;
+//        }
 
         public Weapon getSelectedWeapon() {
             switch (selectedSlot) {
@@ -280,21 +280,21 @@ public class Player {
             }
         }
 
-        public int getMaxAmmo() {
-            switch (getSelectedWeapon().ammoType) {
-                case NONE:
-                    return 0;
-                case PISTOL:
-                    return MAX_PISTOL_AMMO;
-                case SMG:
-                    return MAX_SMG_AMMO;
-                case SHOTGUN:
-                    return MAX_SHOTGUN_AMMO;
-                case RIFLE:
-                    return MAX_Rifle_AMMO;
-            }
-            return 0;
-        }
+//        public int getMaxAmmo() {
+//            switch (getSelectedWeapon().ammoType) {
+//                case NONE:
+//                    return 0;
+//                case PISTOL:
+//                    return MAX_PISTOL_AMMO;
+//                case SMG:
+//                    return MAX_SMG_AMMO;
+//                case SHOTGUN:
+//                    return MAX_SHOTGUN_AMMO;
+//                case RIFLE:
+//                    return MAX_Rifle_AMMO;
+//            }
+//            return 0;
+//        }
 
     }
 
