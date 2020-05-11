@@ -277,9 +277,12 @@ public class Game implements Screen, InputProcessor {
             for (Bullet b : bulletList) {
                 if (player.canSee(b.x, b.y)) {
                     drawBullet.setTexture(manager.get(b.texture, Texture.class));
+                    if (b.width != 0 && b.height != 0) drawBullet.setSize(b.width, b.height);
+                    else drawBullet.setSize(20, 7);
                     drawBullet.setPosition(b.x - camera.position.x + WIDTH / 2f - drawBullet.getWidth() / 2f,
                             b.y - camera.position.y + HEIGHT / 2f - drawBullet.getHeight() / 2f);
                     drawBullet.setRotation(b.angle);
+                    if (!b.rotate) drawBullet.setRotation(0);
                     drawBullet.draw(batch);
                 }
             }

@@ -99,7 +99,7 @@ public class Player {
         alive = true;
         inventory = new Inventory();
         if (role == parent.TRAITOR) credits = 4;
-        texture = "erd";
+        texture = "ers";
     }
 
     public void damage(int amount) {

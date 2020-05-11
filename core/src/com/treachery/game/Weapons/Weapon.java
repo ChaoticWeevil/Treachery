@@ -13,7 +13,14 @@ public class Weapon {
     public final int RIFLE = 4;
 
     public String texture = "ers";
+
     public String projectileTexture = "Projectiles/bullet.png";
+    public int projectileWidth = 0;
+    public int projectileHeight = 0;
+    public boolean projectileCollision = true;
+    public boolean projectileRotate = true;
+    public boolean projectileRemoveOnHit = true;
+
     public int clipSize = 1;
     public int ammoType = 0;
     public int ammoLoaded;

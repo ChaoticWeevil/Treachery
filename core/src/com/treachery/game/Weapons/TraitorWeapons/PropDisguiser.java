@@ -10,6 +10,7 @@ public class PropDisguiser extends TraitorWeapon {
         description = "Disguises the player as a prop";
         texture = "propDisguise";
         ammoLoaded = 1;
+        ID = 6;
     }
 
     @Override

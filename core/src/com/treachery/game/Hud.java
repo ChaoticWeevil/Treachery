@@ -13,10 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Window;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import com.treachery.game.Weapons.TraitorWeapons.Harpoon;
-import com.treachery.game.Weapons.TraitorWeapons.PropDisguiser;
-import com.treachery.game.Weapons.TraitorWeapons.TraitorGun;
-import com.treachery.game.Weapons.TraitorWeapons.TraitorWeapon;
+import com.treachery.game.Weapons.TraitorWeapons.*;
 import com.treachery.game.Weapons.Weapon;
 
 
@@ -27,7 +24,7 @@ public class Hud {
     Stage stage = new Stage();
     Skin skin = new Skin(Gdx.files.internal("skin/star-soldier-ui.json"));
     boolean buyMenuOpen = false;
-    Weapon [] traitorMenuList = new Weapon[]{new Harpoon(), new PropDisguiser()};
+    Weapon [] traitorMenuList = new Weapon[]{new Harpoon(), new PropDisguiser(), new ErsCannon()};
     Label buyMenuCredits = new Label("Credits: ", skin);
     public Hud(final Game parent) {
         this.parent = parent;
