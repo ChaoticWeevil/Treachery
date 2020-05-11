@@ -99,15 +99,10 @@ public class Game implements Screen, InputProcessor {
             // Very bad code that will likely be the cause of many crashes/problems in the future
             if (!(Game.class.getResource("Game.class").toString().contains("core"))) {
                 files = JarUtils.listFromJarIfNecessary(folder);
-                System.out.println(1);
             }
             else {
-                System.out.println(2);
                 files = Gdx.files.internal("core/assets/" + folder).list();
             }
-
-
-
             for (FileHandle file : files) {
                 manager.load((folder + file.name()), Texture.class);
             }
@@ -198,25 +193,38 @@ public class Game implements Screen, InputProcessor {
                     messageClasses.Death message = (messageClasses.Death) object;
                     bodyList.add(new Vector2D(message.x, message.y));
                 } else if (object instanceof messageClasses.ItemDropped) {
-                    messageClasses.ItemDropped message = (messageClasses.ItemDropped) object;
-                    for (Weapon w : weapons) {
-                        if (w.ID == message.weaponID) {
-                            droppedWeapons.add(new DroppedWeapon(message.x, message.y, w.getWeapon()));
+                    final messageClasses.ItemDropped message = (messageClasses.ItemDropped) object;
+                    Gdx.app.postRunnable(new Runnable() {
+                        @Override
+                        public void run() {
+                            for (Weapon w : weapons) {
+                                if (w.ID == message.weaponID) {
+                                    droppedWeapons.add(new DroppedWeapon(message.x, message.y, w.getWeapon()));
+                                }
+                            }
                         }
-                    }
+                    });
+
                 } else if (object instanceof messageClasses.ItemPickedUp) {
-                    messageClasses.ItemPickedUp msg = (messageClasses.ItemPickedUp) object;
-                    ArrayList<DroppedWeapon> droppedRemoveList = new ArrayList<>();
-                    for (DroppedWeapon w : droppedWeapons) {
-                        boolean same = false;
-                        for (Weapon weapon : weapons) {
-                            if (weapon.ID == msg.weaponID) same = (w.weapon.getWeapon() == weapon.getWeapon());
+                    final Object o = object;
+                    Gdx.app.postRunnable(new Runnable() {
+                        @Override
+                        public void run() {
+                            messageClasses.ItemPickedUp msg = (messageClasses.ItemPickedUp) o;
+                            ArrayList<DroppedWeapon> droppedRemoveList = new ArrayList<>();
+                            for (DroppedWeapon w : droppedWeapons) {
+                                boolean same = false;
+                                for (Weapon weapon : weapons) {
+                                    if (weapon.ID == msg.weaponID) same = (w.weapon.getWeapon() == weapon.getWeapon());
+                                }
+                                if (w.x == msg.x && w.y == msg.y) {
+                                    droppedRemoveList.add(w);
+                                }
+                            }
+                            droppedWeapons.removeAll(droppedRemoveList);
                         }
-                        if (w.x == msg.x && w.y == msg.y) {
-                            droppedRemoveList.add(w);
-                        }
-                    }
-                    droppedWeapons.removeAll(droppedRemoveList);
+                    });
+
                 }
             }
         });
@@ -370,18 +378,17 @@ public class Game implements Screen, InputProcessor {
             parent.change_screen(new Menu(parent));
         } else if (keycode == Input.Keys.E) {
             //Check for dropped items
-            ArrayList<DroppedWeapon> removeList = new ArrayList<>();
-            for (DroppedWeapon w : droppedWeapons) {
+            for(int i =0; i< droppedWeapons.size();++i) {
+                DroppedWeapon w = droppedWeapons.get(i);
                 Rectangle r = new Rectangle();
                 r.set(player.x, player.y, player.width, player.height);
                 if (r.contains(w.x, w.y)) {
                     player.inventory.addWeapon(w.weapon);
                     client.sendTCP(new messageClasses.ItemPickedUp(w.x, w.y, w.weapon.ID));
-                    removeList.add(w);
+                    droppedWeapons.remove(w);
 
                 }
             }
-            droppedWeapons.removeAll(removeList);
         } else if (keycode == Input.Keys.Q) {
             player.inventory.dropWeapon();
         } else if (keycode == Input.Keys.B && player.role == TRAITOR) {

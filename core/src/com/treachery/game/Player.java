@@ -76,7 +76,7 @@ public class Player {
         if (alive) {
             screenX *= ((double) parent.WIDTH / Gdx.graphics.getWidth());
             screenY *= ((double) parent.HEIGHT / Gdx.graphics.getHeight());
-            inventory.getSelectedWeapon().Shoot(new Vector2(x, y),
+            inventory.getSelectedWeapon().Shoot(new Vector2(x + width/2f, y + height/2f),
                     new Vector2(screenX + parent.camera.position.x - parent.WIDTH / 2f, screenY + parent.camera.position.y - parent.HEIGHT / 2f), parent);
         }
     }

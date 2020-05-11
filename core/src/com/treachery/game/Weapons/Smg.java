@@ -6,7 +6,7 @@ public class Smg extends Gun {
     public Smg(Game parent) {
         this.parent = parent;
         damage = 10;
-        velocity = 25;
+        velocity = 35;
         fireRate = 0.2f;
         ammoType = SMG;
         clipSize = 30;
