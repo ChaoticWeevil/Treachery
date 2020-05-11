@@ -24,7 +24,9 @@ public class Player {
     float height = 50;
     int health = 100;
     int credits = 0;
-    String texture = "ers.png";
+    public String texture = "ers";
+    public boolean showName = true;
+
     String username;
     Pool<Rectangle> rectPool = new Pool<Rectangle>() {
         @Override
@@ -81,6 +83,15 @@ public class Player {
         }
     }
 
+    public void altShoot(float screenX, float screenY) {
+        if (alive) {
+            screenX *= ((double) parent.WIDTH / Gdx.graphics.getWidth());
+            screenY *= ((double) parent.HEIGHT / Gdx.graphics.getHeight());
+            inventory.getSelectedWeapon().altShoot(new Vector2(x + width/2f, y + height/2f),
+                    new Vector2(screenX + parent.camera.position.x - parent.WIDTH / 2f, screenY + parent.camera.position.y - parent.HEIGHT / 2f), parent);
+        }
+    }
+
     public void startRound() {
         x = 1;
         y = 1;
@@ -88,6 +99,7 @@ public class Player {
         alive = true;
         inventory = new Inventory();
         if (role == parent.TRAITOR) credits = 4;
+        texture = "erd";
     }
 
     public void damage(int amount) {
@@ -137,7 +149,7 @@ public class Player {
     }
 
     public void render(SpriteBatch batch) {
-        if (alive) batch.draw(parent.manager.get("OtherTextures/" + texture, Texture.class), parent.WIDTH / 2f, parent.HEIGHT / 2f);
+        if (alive) batch.draw(parent.manager.get("OtherTextures/" + texture + ".png", Texture.class), parent.WIDTH / 2f, parent.HEIGHT / 2f);
     }
 
     public class Inventory {

@@ -12,7 +12,7 @@ public class Weapon {
     public final int SMG = 3;
     public final int RIFLE = 4;
 
-    public String texture = "OtherTextures/ers.png";
+    public String texture = "ers";
     public String projectileTexture = "Projectiles/bullet.png";
     public int clipSize = 1;
     public int ammoType = 0;
@@ -25,7 +25,7 @@ public class Weapon {
     public void Shoot(Vector2 startPosition, Vector2 targetPosition, Game parent) {
     }
 
-    public void altShoot() {
+    public void altShoot(Vector2 startPosition, Vector2 targetPosition, Game parent) {
     }
 
     public void reload(Game parent) {

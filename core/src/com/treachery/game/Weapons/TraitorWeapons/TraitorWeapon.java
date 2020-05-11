@@ -15,8 +15,8 @@ public class TraitorWeapon extends Weapon {
     }
 
     @Override
-    public void altShoot() {
-        super.altShoot();
+    public void altShoot(Vector2 startPosition, Vector2 targetPosition, Game parent) {
+        super.altShoot(startPosition, targetPosition, parent);
     }
 
     @Override

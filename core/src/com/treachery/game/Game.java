@@ -246,7 +246,7 @@ public class Game implements Screen, InputProcessor {
 
         updateTime -= 1;
         if (updateTime == 0) {
-            client.sendTCP(new playerUpdate(player.x, player.y, player.alive));
+            client.sendTCP(new playerUpdate(player.x, player.y, player.alive, player.showName, player.texture));
             updateTime = 2;
         }
     }
@@ -265,8 +265,8 @@ public class Game implements Screen, InputProcessor {
             else if (gameState == WAITING) fontSmall.draw(batch, "Waiting", 1, HEIGHT - 2);
             for (User u : userList) {
                 if (u.alive && player.canSee(u.x, u.y)) {
-                    batch.draw(manager.get("OtherTextures/ers.png", Texture.class), u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f);
-                    font.draw(batch, u.username, u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f + 65);
+                    batch.draw(manager.get("OtherTextures/" + u.texture + ".png", Texture.class), u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f);
+                    if (u.showName) font.draw(batch, u.username, u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f + 65);
                 }
             }
             for (Vector2D b : bodyList) {
@@ -418,6 +418,12 @@ public class Game implements Screen, InputProcessor {
             if (!hud.buyMenuOpen) {
                 if (player.inventory.getSelectedWeapon().automatic) player.shooting = true;
                 else player.shoot(screenX, screenY);
+            }
+        }
+        else if (button == Input.Buttons.RIGHT) {
+            if (!hud.buyMenuOpen) {
+                if (player.inventory.getSelectedWeapon().automatic) player.shooting = true;
+                else player.altShoot(screenX, screenY);
             }
         }
 
