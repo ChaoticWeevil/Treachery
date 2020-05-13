@@ -26,6 +26,7 @@ public class Gun extends Weapon{
             p.height = projectileHeight;
             p.rotate = projectileRotate;
             p.collision = projectileCollision;
+            p.removeOnHit = projectileRemoveOnHit;
             parent.sendProjectile(p);
             ammoLoaded -= 1;
 
