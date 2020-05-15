@@ -10,7 +10,6 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.utils.Align;
-import com.treachery.game.Weapons.Blank;
 import com.treachery.game.Weapons.TraitorWeapons.*;
 import com.treachery.game.Weapons.Weapon;
 
@@ -81,7 +80,7 @@ public class Hud {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 if (!(selectedMenuWeapon == null)) {
-                    int cost = 0;
+                    int cost;
                     if (selectedMenuWeapon instanceof TraitorGun) cost = ((TraitorGun)selectedMenuWeapon).cost;
                     else cost = ((TraitorWeapon)selectedMenuWeapon).cost;
                     if (parent.player.credits >= cost) {

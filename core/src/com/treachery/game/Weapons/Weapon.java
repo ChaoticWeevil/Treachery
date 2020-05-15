@@ -5,8 +5,6 @@ import com.treachery.game.Game;
 
 public class Weapon {
     public int ID;
-    //Ammo types
-    public final int NONE = 0; //Ammo not lootable
     public final int PISTOL = 1;
     public final int SHOTGUN = 2;
     public final int SMG = 3;

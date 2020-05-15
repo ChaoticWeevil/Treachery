@@ -26,6 +26,12 @@ public class PropDisguiser extends TraitorWeapon {
     }
 
     @Override
+    public void reload(Game parent) {
+        parent.player.texture = "propDisguise2";
+        parent.player.showName = false;
+    }
+
+    @Override
     public Weapon getWeapon() {
         return new PropDisguiser();
     }
