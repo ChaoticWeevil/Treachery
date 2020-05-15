@@ -296,6 +296,9 @@ public class Game implements Screen, InputProcessor {
             batch.end();
             console.draw();
 
+            shapeRenderer.begin();
+            hud.buyMenuDescription.drawDebug(shapeRenderer);
+            shapeRenderer.end();
         }
 
         if (debugMode) renderDebug();
@@ -390,6 +393,7 @@ public class Game implements Screen, InputProcessor {
         } else if (keycode == Input.Keys.B && player.role == TRAITOR) {
             hud.buyMenuOpen = !hud.buyMenuOpen;
             hud.buyMenu.setVisible(hud.buyMenuOpen);
+            hud.buyMenuDescription.setVisible(hud.buyMenuOpen);
         }
 
 
