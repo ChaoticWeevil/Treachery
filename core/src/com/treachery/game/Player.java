@@ -175,6 +175,7 @@ public class Player {
         int shotgunAmmo = 99;
         int smgAmmo = 99;
         int rifleAmmo = 99;
+        public boolean hasRadar = false;
 
         public void addWeapon(Weapon w) {
             if (slot1.blank) {

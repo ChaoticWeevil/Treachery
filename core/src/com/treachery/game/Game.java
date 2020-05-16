@@ -13,6 +13,7 @@ import com.badlogic.gdx.maps.objects.RectangleMapObject;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -24,10 +25,11 @@ import com.esotericsoftware.kryonet.Listener;
 import com.strongjoshua.console.Console;
 import com.strongjoshua.console.GUIConsole;
 import com.treachery.game.Weapons.*;
-import com.treachery.game.messageClasses.mapRequest;
 import com.treachery.game.messageClasses.mapReceive;
+import com.treachery.game.messageClasses.mapRequest;
 import com.treachery.game.messageClasses.playerUpdate;
 import com.treachery.game.messageClasses.serverUpdate;
+
 import java.awt.geom.Rectangle2D;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -264,9 +266,20 @@ public class Game implements Screen, InputProcessor {
             if (gameState == MID_ROUND) fontSmall.draw(batch, "Mid round", 1, HEIGHT - 2);
             else if (gameState == WAITING) fontSmall.draw(batch, "Waiting", 1, HEIGHT - 2);
             for (User u : userList) {
-                if (u.alive && player.canSee(u.x, u.y)) {
-                    batch.draw(manager.get("OtherTextures/" + u.texture + ".png", Texture.class), u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f);
-                    if (u.showName) font.draw(batch, u.username, u.x - camera.position.x + WIDTH / 2f, u.y - camera.position.y + HEIGHT / 2f + 65);
+                if (u.alive) {
+                    float drawX = u.x - camera.position.x + WIDTH / 2f;
+                    float drawY = u.y - camera.position.y + HEIGHT / 2f;
+                    if (player.canSee(u.x, u.y)) {
+                        batch.draw(manager.get("OtherTextures/" + u.texture + ".png", Texture.class), drawX, drawY);
+                        if (u.showName) font.draw(batch, u.username, drawX,
+                                drawY + 65);
+                    }
+                    if (player.inventory.hasRadar && (!player.canSee(u.x, u.y) || !(drawX + 50 > 0 && drawY + 50 > 0 && drawX < WIDTH && drawY < HEIGHT))) {
+                        float radarX = MathUtils.clamp(drawX, 0, WIDTH - 30);
+                        float radarY = MathUtils.clamp(drawY, 0, HEIGHT - 30);
+                        batch.draw(manager.get("OtherTextures/radarBlip.png", Texture.class), radarX, radarY);
+                    }
+
                 }
             }
             for (Vector2D b : bodyList) {

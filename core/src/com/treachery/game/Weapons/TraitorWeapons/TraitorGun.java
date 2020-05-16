@@ -30,4 +30,7 @@ public class TraitorGun extends Gun {
         return new TraitorGun();
     }
 
+    public void bought(Game parent) {
+    }
+
 }

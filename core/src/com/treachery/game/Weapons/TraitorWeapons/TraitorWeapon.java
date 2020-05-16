@@ -28,4 +28,7 @@ public class TraitorWeapon extends Weapon {
     public Weapon getWeapon() {
         return new TraitorWeapon();
     }
+
+    public void bought(Game parent) {
+    }
 }

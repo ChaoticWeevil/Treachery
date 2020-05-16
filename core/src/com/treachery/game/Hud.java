@@ -22,7 +22,7 @@ public class Hud {
     Stage stage = new Stage();
     Skin skin = new Skin(Gdx.files.internal("skin/star-soldier-ui.json"));
     boolean buyMenuOpen = false;
-    Weapon [] traitorMenuList = new Weapon[]{new Harpoon(), new PropDisguiser(), new ErsCannon()};
+    Weapon[] traitorMenuList = new Weapon[]{new Harpoon(), new PropDisguiser(), new ErsCannon(), new Radar()};
     Label lbl_buyMenuCredits = new Label("Credits: ", skin);
 
     Weapon selectedMenuWeapon = traitorMenuList[0].getWeapon();
@@ -85,6 +85,11 @@ public class Hud {
                     else cost = ((TraitorWeapon)selectedMenuWeapon).cost;
                     if (parent.player.credits >= cost) {
                         parent.player.inventory.addWeapon(selectedMenuWeapon.getWeapon());
+                        try {
+                            ((TraitorGun) selectedMenuWeapon).bought(parent);
+                        } catch (Exception e) {
+                            ((TraitorWeapon) selectedMenuWeapon).bought(parent);
+                        }
                         parent.player.credits -= cost;
                     }
                 }
@@ -119,31 +124,31 @@ public class Hud {
         }
         if (parent.player.alive) {
             // Inventory
-            batch.draw(parent.manager.get("Hud/grey_panel.png", Texture.class), 10, 10);
+            batch.draw(parent.manager.get("Hud/grey_panel.png", Texture.class), 40, 40);
             if (!parent.player.inventory.slot1.texture.equals(""))
-                batch.draw(parent.manager.get("Weapons/Hotbar/" + parent.player.inventory.slot1.texture + ".png", Texture.class), 10, 10);
-            parent.font.draw(batch, "1", 16, 100);
+                batch.draw(parent.manager.get("Weapons/Hotbar/" + parent.player.inventory.slot1.texture + ".png", Texture.class), 40, 40);
+            parent.font.draw(batch, "1", 46, 130);
 
-            batch.draw(parent.manager.get("Hud/grey_panel.png", Texture.class), 120, 10);
+            batch.draw(parent.manager.get("Hud/grey_panel.png", Texture.class), 150, 40);
             if (!parent.player.inventory.slot2.texture.equals(""))
-                batch.draw(parent.manager.get("Weapons/Hotbar/" + parent.player.inventory.slot2.texture + ".png", Texture.class), 120, 10);
-            parent.font.draw(batch, "2", 126, 100);
+                batch.draw(parent.manager.get("Weapons/Hotbar/" + parent.player.inventory.slot2.texture + ".png", Texture.class), 150, 40);
+            parent.font.draw(batch, "2", 156, 130);
 
-            batch.draw(parent.manager.get("Hud/grey_panel.png", Texture.class), 230, 10);
+            batch.draw(parent.manager.get("Hud/grey_panel.png", Texture.class), 260, 40);
             if (!parent.player.inventory.slot3.texture.equals(""))
-                batch.draw(parent.manager.get("Weapons/Hotbar/" + parent.player.inventory.slot3.texture + ".png", Texture.class), 230, 10);
-            parent.font.draw(batch, "3", 236, 100);
+                batch.draw(parent.manager.get("Weapons/Hotbar/" + parent.player.inventory.slot3.texture + ".png", Texture.class), 260, 40);
+            parent.font.draw(batch, "3", 266, 130);
 
-            batch.draw(parent.manager.get("Hud/grey_panel.png", Texture.class), 340, 10);
+            batch.draw(parent.manager.get("Hud/grey_panel.png", Texture.class), 370, 40);
             if (!parent.player.inventory.slot4.texture.equals(""))
-                batch.draw(parent.manager.get("Weapons/Hotbar/" + parent.player.inventory.slot4.texture + ".png", Texture.class), 340, 10);
-            parent.font.draw(batch, "4", 346, 100);
+                batch.draw(parent.manager.get("Weapons/Hotbar/" + parent.player.inventory.slot4.texture + ".png", Texture.class), 370, 40);
+            parent.font.draw(batch, "4", 376, 130);
 
             // Draws box around selected item
             batch.end();
             parent.shapeRenderer.begin();
             parent.shapeRenderer.setColor(Color.RED);
-            parent.shapeRenderer.rect(10 + 110 * (parent.player.inventory.selectedSlot - 1), 10, 100, 100);
+            parent.shapeRenderer.rect(40 + 110 * (parent.player.inventory.selectedSlot - 1), 40, 100, 100);
             parent.shapeRenderer.end();
             batch.begin();
 
