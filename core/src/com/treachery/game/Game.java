@@ -34,6 +34,13 @@ import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 import java.util.Random;
 
+
+/**
+ * Class for each game of Treachery.
+ * Created when a user attempts to connect to a server
+ *
+ * @author ChaoticWeevil
+ */
 public class Game implements Screen, InputProcessor {
     Main parent;
     String ip;
@@ -68,7 +75,7 @@ public class Game implements Screen, InputProcessor {
     BitmapFont font = new BitmapFont();
     BitmapFont fontSmall = new BitmapFont();
 
-    Client client = new Client();
+    public Client client = new Client();
     Boolean connected = false;
     Integer updateTime = 5;
     ShapeRenderer shapeRenderer = new ShapeRenderer();
@@ -79,6 +86,14 @@ public class Game implements Screen, InputProcessor {
     boolean roundStart = false;
 
 
+    /**
+     * Creates the game and connects the player to a server
+     *
+     * @param ip       IP address of server
+     * @param port     Port of server - usually 54555
+     * @param username Username of connecting player
+     * @param parent   Main class
+     */
     public Game(String ip, int port, String username, Main parent) {
         this.parent = parent;
         this.ip = ip;
@@ -97,8 +112,7 @@ public class Game implements Screen, InputProcessor {
             // Very bad code that will likely be the cause of many crashes/problems in the future
             if (!(Game.class.getResource("Game.class").toString().contains("core"))) {
                 files = JarUtils.listFromJarIfNecessary(folder);
-            }
-            else {
+            } else {
                 files = Gdx.files.internal("core/assets/" + folder).list();
             }
             for (FileHandle file : files) {
@@ -129,6 +143,10 @@ public class Game implements Screen, InputProcessor {
     }
 
 
+    /**
+     * Runs when the game screen is shown. This should be via the changeScreen function in Main
+     * Method implemented from Screen
+     */
     @Override
     public void show() {
         Gdx.input.setInputProcessor(new InputMultiplexer(this, hud.stage));
@@ -146,7 +164,7 @@ public class Game implements Screen, InputProcessor {
             dispose();
             parent.menu = new Menu(parent);
             parent.menu.window.setVisible(true);
-            parent.change_screen(parent.menu);
+            parent.changeScreen(parent.menu);
 
         }
         client.sendTCP(new mapRequest(player.username));
@@ -233,14 +251,18 @@ public class Game implements Screen, InputProcessor {
         client.addListener(new Listener() {
             public void disconnected(Connection connection) {
                 System.out.println("Error: Lost connection to server");
-                parent.change_screen(parent.menu);
+                parent.changeScreen(parent.menu);
 
             }
         });
         console.resetInputProcessing();
     }
 
-    // Runs 100 times per second
+
+    /**
+     * Updates all objects in the game.
+     * Function is run 100 times per second by Timer.schedule
+     */
     public void update() {
         if (roundStart) {
             roundStart = false;
@@ -256,6 +278,15 @@ public class Game implements Screen, InputProcessor {
         }
     }
 
+
+    /**
+     * Renders all objects in the game.
+     * Called automatically by libGDX when the screen should render itself.
+     * Aims for 60 FPS
+     * Method implemented from Screen.
+     *
+     * @param delta time since last render
+     */
     @Override
     public void render(float delta) {
         Gdx.graphics.setTitle("Treachery | FPS: " + Gdx.graphics.getFramesPerSecond());
@@ -326,6 +357,10 @@ public class Game implements Screen, InputProcessor {
     }
 
 
+    /**
+     * Additional rendering used for debugging
+     * Toggled by console command
+     */
     public void renderDebug() {
         shapeRenderer.begin();
         shapeRenderer.setColor(Color.WHITE);
@@ -349,6 +384,11 @@ public class Game implements Screen, InputProcessor {
         shapeRenderer.end();
     }
 
+    /**
+     * Loads objects from the map
+     * Run at the start of every round
+     * Not used for collision
+     */
     public void loadMapObjects() {
         for (MapObject mapObject : map.getLayers().get("Collision").getObjects()) {
             // Load weapon drops
@@ -371,6 +411,12 @@ public class Game implements Screen, InputProcessor {
         }
     }
 
+    /**
+     * Called when a key was pressed
+     *
+     * @param keycode key pressed. One of the constants in {@link Input.Keys}
+     * @return whether the input was processed
+     */
     @Override
     public boolean keyDown(int keycode) {
         if (keycode == Input.Keys.A) {
@@ -393,10 +439,10 @@ public class Game implements Screen, InputProcessor {
             player.inventory.getSelectedWeapon().reload(this);
         } else if (keycode == Input.Keys.ESCAPE) {
             dispose();
-            parent.change_screen(new Menu(parent));
+            parent.changeScreen(new Menu(parent));
         } else if (keycode == Input.Keys.E) {
             //Check for dropped items
-            for(int i =0; i< droppedWeapons.size();++i) {
+            for(int i =0; i< droppedWeapons.size(); ++i) {
                 DroppedWeapon w = droppedWeapons.get(i);
                 Rectangle r = new Rectangle();
                 r.set(player.x, player.y, player.width, player.height);
@@ -419,6 +465,12 @@ public class Game implements Screen, InputProcessor {
         return false;
     }
 
+    /**
+     * Called when a key was released
+     *
+     * @param keycode key released. One of the constants in {@link Input.Keys}
+     * @return whether the input was processed
+     */
     @Override
     public boolean keyUp(int keycode) {
         if (keycode == Input.Keys.A) {
@@ -433,10 +485,6 @@ public class Game implements Screen, InputProcessor {
         return false;
     }
 
-    public void sendProjectile(messageClasses.Projectile p) {
-        client.sendTCP(p);
-    }
-
     @Override
     public boolean touchDown(int screenX, int screenY, int pointer, int button) {
         screenY = Gdx.graphics.getHeight() - screenY;
@@ -445,8 +493,7 @@ public class Game implements Screen, InputProcessor {
                 if (player.inventory.getSelectedWeapon().automatic) player.shooting = true;
                 else player.shoot(screenX, screenY);
             }
-        }
-        else if (button == Input.Buttons.RIGHT) {
+        } else if (button == Input.Buttons.RIGHT) {
             if (!hud.buyMenuOpen) {
                 if (player.inventory.getSelectedWeapon().automatic) player.shooting = true;
                 else player.altShoot(screenX, screenY);

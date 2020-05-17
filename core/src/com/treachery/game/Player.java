@@ -15,6 +15,11 @@ import com.treachery.game.Weapons.Blank;
 import com.treachery.game.Weapons.Pistol;
 import com.treachery.game.Weapons.Weapon;
 
+/**
+ * The player of the user.
+ *
+ * @author ChaoticWeevil
+ */
 public class Player {
     Game parent;
     public Inventory inventory = new Inventory();
@@ -45,13 +50,20 @@ public class Player {
     Polygon polygon = new Polygon();
 
 
+    /**
+     * @param parent current Game
+     */
     public Player(Game parent) {
         this.parent = parent;
     }
 
+
+    /**
+     * Updates the player. Runs 100 times per second
+     */
     public void update() {
         if (shooting) shoot(Gdx.input.getX(), Gdx.graphics.getHeight() - Gdx.input.getY());
-        inventory.getSelectedWeapon().cooldown --;
+        inventory.getSelectedWeapon().cooldown--;
         MapObjects objects = parent.map.getLayers().get("Collision").getObjects();
         if (left) {
             x -= speed;
@@ -74,24 +86,39 @@ public class Player {
 
     }
 
+    /**
+     * Shoots the player's currently equipped gun
+     *
+     * @param screenX x position on screen to shoot towards (where player clicked)
+     * @param screenY y position on screen to shoot towards (where player clicked)
+     */
     public void shoot(float screenX, float screenY) {
         if (alive) {
             screenX *= ((double) parent.WIDTH / Gdx.graphics.getWidth());
             screenY *= ((double) parent.HEIGHT / Gdx.graphics.getHeight());
-            inventory.getSelectedWeapon().Shoot(new Vector2(x + width/2f, y + height/2f),
+            inventory.getSelectedWeapon().Shoot(new Vector2(x + width / 2f, y + height / 2f),
                     new Vector2(screenX + parent.camera.position.x - parent.WIDTH / 2f, screenY + parent.camera.position.y - parent.HEIGHT / 2f), parent);
         }
     }
 
+    /**
+     * Runs secondary fire ability of player's currently equipped gun
+     *
+     * @param screenX x position on screen to shoot towards (where player clicked)
+     * @param screenY y position on screen to shoot towards (where player clicked)
+     */
     public void altShoot(float screenX, float screenY) {
         if (alive) {
             screenX *= ((double) parent.WIDTH / Gdx.graphics.getWidth());
             screenY *= ((double) parent.HEIGHT / Gdx.graphics.getHeight());
-            inventory.getSelectedWeapon().altShoot(new Vector2(x + width/2f, y + height/2f),
+            inventory.getSelectedWeapon().altShoot(new Vector2(x + width / 2f, y + height / 2f),
                     new Vector2(screenX + parent.camera.position.x - parent.WIDTH / 2f, screenY + parent.camera.position.y - parent.HEIGHT / 2f), parent);
         }
     }
 
+    /**
+     * Runs at the start of each round. Resets the player for that round.
+     */
     public void startRound() {
         x = 1;
         y = 1;
@@ -102,6 +129,12 @@ public class Player {
         texture = "ers";
     }
 
+
+    /**
+     * Damages the player by the amount specified. Used whenever the player takes damage.
+     *
+     * @param amount amount of damage to take
+     */
     public void damage(int amount) {
         health -= amount;
         if (health <= 0) {
@@ -110,6 +143,13 @@ public class Player {
         }
     }
 
+    /**
+     * Checks there is a wall between the player and the point. Used of checking LOS
+     *
+     * @param px x location of point to check
+     * @param py y location of point to check
+     * @return if the player has an unobstructed line of site to the point
+     */
     public boolean canSee(float px, float py) {
         if (!alive) return true;
         for (MapObject object : parent.map.getLayers().get("Collision").getObjects()) {
@@ -117,18 +157,25 @@ public class Player {
             boolean wall = false;
             try {
                 wall = object.getProperties().get("Wall", boolean.class);
-            }catch (Exception ignored){}
-            start.set(x,y);
-            end.set(px,py);
+            } catch (Exception ignored) {
+            }
+            start.set(x, y);
+            end.set(px, py);
             polygon.setVertices(new float[]{r.x, r.y,
                     r.x + r.width, r.y,
                     r.x, r.y + r.height,
-                    r.x+r.width, r.y + r.height});
+                    r.x + r.width, r.y + r.height});
             if (Intersector.intersectSegmentPolygon(start, end, polygon) && wall) return false;
         }
         return true;
     }
 
+    /**
+     * Checks if the player overlaps a wall - collision detection
+     *
+     * @param mapObjects list of mapObjects to check
+     * @return true if player overlaps a mapObject
+     */
     public boolean isBlocked(MapObjects mapObjects) {
         if (x < 0 || y < 0 || x + width > parent.MAP_WIDTH || y + height > parent.MAP_HEIGHT) return true;
         if (!alive) return false;
@@ -148,10 +195,19 @@ public class Player {
         return false;
     }
 
+    /**
+     * Renders the player on the provided batch
+     *
+     * @param batch batch to render to
+     */
     public void render(SpriteBatch batch) {
-        if (alive) batch.draw(parent.manager.get("OtherTextures/" + texture + ".png", Texture.class), parent.WIDTH / 2f, parent.HEIGHT / 2f);
+        if (alive)
+            batch.draw(parent.manager.get("OtherTextures/" + texture + ".png", Texture.class), parent.WIDTH / 2f, parent.HEIGHT / 2f);
     }
 
+    /**
+     * Stores the players inventory
+     */
     public class Inventory {
         // Ammo types
         final int NONE = 0;
@@ -177,26 +233,31 @@ public class Player {
         int rifleAmmo = 99;
         public boolean hasRadar = false;
 
+        /**
+         * Adds a weapon to the players inventory if there is a free slot. Drops the weapon if the player has no free slots.
+         *
+         * @param w weapon to add
+         */
         public void addWeapon(Weapon w) {
             if (slot1.blank) {
                 slot1 = w;
-            }
-            else if (slot2.blank) {
+            } else if (slot2.blank) {
                 slot2 = w;
-            }
-            else if (slot3.blank) {
+            } else if (slot3.blank) {
                 slot3 = w;
-            }
-            else if (slot4.blank) {
+            } else if (slot4.blank) {
                 slot4 = w;
-            }
-            else {
+            } else {
                 parent.droppedWeapons.add(new DroppedWeapon(x, y, w));
                 parent.client.sendTCP(new messageClasses.ItemDropped(x, y, w.ID));
             }
 
         }
 
+
+        /**
+         * Drops the player's currently selected weapon
+         */
         public void dropWeapon() {
             switch (selectedSlot) {
                 case 1:
@@ -246,6 +307,12 @@ public class Player {
 //            return slot1.ammoType == RIFLE || slot2.ammoType == RIFLE || slot3.ammoType == RIFLE || slot4.ammoType == RIFLE;
 //        }
 
+
+        /**
+         * Returns the weapon the player has equipped
+         *
+         * @return player's currently selected weapon
+         */
         public Weapon getSelectedWeapon() {
             switch (selectedSlot) {
                 case 1:
@@ -260,6 +327,12 @@ public class Player {
             return new Weapon();
         }
 
+
+        /**
+         * Returns amount of ammo of the player's currently equipped weapon
+         *
+         * @return amount of ammo of selected weapon
+         */
         public int getSelectedAmmo() {
             switch (getSelectedWeapon().ammoType) {
                 case NONE:
@@ -276,6 +349,11 @@ public class Player {
             return 0;
         }
 
+        /**
+         * Modifies the amount of ammo of the player's currently equipped weapon
+         *
+         * @param amount amount to modify by
+         */
         public void modifySelectedAmmo(int amount) {
             switch (getSelectedWeapon().ammoType) {
                 case PISTOL:

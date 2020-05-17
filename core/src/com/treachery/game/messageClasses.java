@@ -6,6 +6,11 @@ import com.esotericsoftware.kryonet.EndPoint;
 import java.awt.geom.Rectangle2D;
 import java.util.ArrayList;
 
+/**
+ * Classes for messages between client and server.
+ * Allows Kryo to serialize/deserialize them.
+ * Must be same on server and client.
+ */
 public class messageClasses {
     public static void registerClasses(EndPoint endPoint) {
         Kryo kryo = endPoint.getKryo();
@@ -150,6 +155,7 @@ public class messageClasses {
             this.y = y;
             this.weaponID = weaponID;
         }
+
         public ItemDropped() {
         }
     }
@@ -158,11 +164,13 @@ public class messageClasses {
         float x;
         float y;
         int weaponID;
+
         public ItemPickedUp(float x, float y, int weaponID) {
             this.x = x;
             this.y = y;
             this.weaponID = weaponID;
         }
+
         public ItemPickedUp() {
         }
     }

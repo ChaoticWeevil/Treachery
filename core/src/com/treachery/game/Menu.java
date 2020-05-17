@@ -79,7 +79,7 @@ public class Menu implements Screen {
                 String ip = txt_ip.getText();
                 int port = Integer.parseInt(txt_port.getText());
                 String username = txt_username.getText();
-                parent.change_screen(new Game(ip, port, username, parent));
+                parent.changeScreen(new Game(ip, port, username, parent));
             }
         });
         stage.addActor(btn_onlineConnect);

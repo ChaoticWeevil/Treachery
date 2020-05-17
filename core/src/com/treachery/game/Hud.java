@@ -14,7 +14,11 @@ import com.treachery.game.Weapons.TraitorWeapons.*;
 import com.treachery.game.Weapons.Weapon;
 
 
-
+/**
+ * Stores and renders the HUD of the game
+ *
+ * @author ChaoticWeevil
+ */
 public class Hud {
     Game parent;
     public Window buyMenu;
@@ -28,13 +32,19 @@ public class Hud {
     Weapon selectedMenuWeapon = traitorMenuList[0].getWeapon();
     Label lbl_WeaponName = new Label("", skin);
     Label lbl_WeaponDescription = new Label("", skin);
+
+    /**
+     * Creates the Hud
+     *
+     * @param parent current Game
+     */
     public Hud(final Game parent) {
         this.parent = parent;
         buyMenu = new Window("Buy Menu", skin);
         buyMenu.setMovable(false);
         float newWidth = 600, newHeight = 400;
         buyMenu.setBounds(150,
-                (Gdx.graphics.getHeight() - newHeight ) / 2, newWidth - 100 , newHeight );
+                (Gdx.graphics.getHeight() - newHeight) / 2, newWidth - 100, newHeight);
         buyMenu.setVisible(false);
         buyMenu.getTitleLabel().setAlignment(Align.center);
         buyMenu.row();
@@ -46,8 +56,7 @@ public class Hud {
                     if (w instanceof  TraitorGun) {
                         lbl_WeaponName.setText(((TraitorGun)w).name);
                         lbl_WeaponDescription.setText(((TraitorGun)w).description);
-                    }
-                    else {
+                    } else {
                         lbl_WeaponName.setText(((TraitorWeapon)w).name);
                         lbl_WeaponDescription.setText(((TraitorWeapon)w).description);
                     }
@@ -59,8 +68,7 @@ public class Hud {
         if (selectedMenuWeapon instanceof  TraitorGun) {
             lbl_WeaponName.setText(((TraitorGun)selectedMenuWeapon).name);
             lbl_WeaponDescription.setText(((TraitorGun)selectedMenuWeapon).description);
-        }
-        else {
+        } else {
             lbl_WeaponName.setText(((TraitorWeapon)selectedMenuWeapon).name);
             lbl_WeaponDescription.setText(((TraitorWeapon)selectedMenuWeapon).description);
         }
@@ -94,7 +102,7 @@ public class Hud {
                     }
                 }
             }
-            });
+        });
         buyMenuDescription.align(Align.topLeft);
 
         buyMenuDescription.add(lbl_buyMenuCredits).padBottom(30);
@@ -114,9 +122,13 @@ public class Hud {
         stage.addActor(buyMenuDescription);
 
 
-
     }
 
+    /**
+     * Renders the Hud on the given batch
+     *
+     * @param batch batch to render on
+     */
     public void render(SpriteBatch batch) {
         lbl_buyMenuCredits.setText("Credits: " + parent.player.credits);
         if (parent.gameState == parent.WAITING && !parent.winners.equals("")) {
@@ -151,7 +163,6 @@ public class Hud {
             parent.shapeRenderer.rect(40 + 110 * (parent.player.inventory.selectedSlot - 1), 40, 100, 100);
             parent.shapeRenderer.end();
             batch.begin();
-
 
 
             // Health and stuff
