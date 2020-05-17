@@ -7,11 +7,9 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.Label;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.ui.TextField;
+import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 
 import java.util.Random;
@@ -24,6 +22,7 @@ public class Menu implements Screen {
     Main parent;
     Stage stage = new Stage(viewport);
     Skin skin = new Skin(Gdx.files.internal("skin/star-soldier-ui.json"));
+    Window window;
 
     public Menu(final Main parent) {
         this.parent = parent;
@@ -84,6 +83,29 @@ public class Menu implements Screen {
             }
         });
         stage.addActor(btn_onlineConnect);
+
+        window = new Window("Connection Failed", skin);
+        window.setMovable(false);
+        float width = 420, height = 180;
+        window.setBounds(SCREEN_WIDTH / 2f - width / 2f, (Gdx.graphics.getHeight() - height) / 2,
+                width, height);
+        window.setVisible(false);
+        window.getTitleLabel().setAlignment(Align.center);
+        Label label = new Label("Connection to server failed.", skin);
+        label.setWrap(true);
+        label.setWidth(width - 20);
+        label.setAlignment(Align.center);
+        window.add(label).left().width(width - 20);
+        TextButton button = new TextButton("Continue", skin);
+        button.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                window.setVisible(false);
+            }
+        });
+        window.row().width(width - 20);
+        window.add(button);
+        stage.addActor(window);
     }
 
     @Override
@@ -105,9 +127,14 @@ public class Menu implements Screen {
 
     // Unused Methods
     @Override
-    public void resize(int width, int height) {}
+    public void resize(int width, int height) {
+        stage.getViewport().update(width, height, true);
+
+    }
+
     @Override
-    public void pause() {}
+    public void pause() {
+    }
     @Override
     public void resume() {}
     @Override

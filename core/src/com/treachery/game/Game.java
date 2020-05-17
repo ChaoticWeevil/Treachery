@@ -31,7 +31,6 @@ import com.treachery.game.messageClasses.playerUpdate;
 import com.treachery.game.messageClasses.serverUpdate;
 
 import java.awt.geom.Rectangle2D;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -132,14 +131,22 @@ public class Game implements Screen, InputProcessor {
 
     @Override
     public void show() {
+        Gdx.input.setInputProcessor(new InputMultiplexer(this, hud.stage));
+        Pixmap pm = new Pixmap(Gdx.files.internal("Hud/crosshair.png"));
+        Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 1, 6));
+        pm.dispose();
         // Attempt to connect to server
         // Returns to menu if fails
         client.start();
         try {
             client.connect(5000, ip, port);
         } catch (Exception e) {
-            parent.change_screen(parent.menu);
+            client.stop();
             System.out.println("Connection Failed:\n" + e);
+            dispose();
+            parent.menu = new Menu(parent);
+            parent.menu.window.setVisible(true);
+            parent.change_screen(parent.menu);
 
         }
         client.sendTCP(new mapRequest(player.username));
@@ -230,10 +237,6 @@ public class Game implements Screen, InputProcessor {
 
             }
         });
-        Gdx.input.setInputProcessor(new InputMultiplexer(this, hud.stage));
-        Pixmap pm = new Pixmap(Gdx.files.internal("Hud/crosshair.png"));
-        Gdx.graphics.setCursor(Gdx.graphics.newCursor(pm, 1, 6));
-        pm.dispose();
         console.resetInputProcessing();
     }
 
@@ -471,10 +474,12 @@ public class Game implements Screen, InputProcessor {
 
     @Override
     public void dispose() {
-        batch.dispose();
         try {
             client.dispose();
-        } catch (IOException ignored) {
+            batch.dispose();
+            manager.dispose();
+        } catch (Exception e) {
+            System.out.println("Caught Exception Disposing Game:\n");
         }
     }
 

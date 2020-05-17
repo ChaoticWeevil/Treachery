@@ -5,7 +5,6 @@ import com.badlogic.gdx.Screen;
 
 public class Main extends com.badlogic.gdx.Game {
 	Menu menu;
-	Game game;
 
 	@Override
 	public void create() {
