@@ -276,6 +276,9 @@ public class Game implements Screen, InputProcessor {
                         batch.draw(manager.get("OtherTextures/" + u.texture + ".png", Texture.class), drawX, drawY);
                         if (u.showName) font.draw(batch, u.username, drawX,
                                 drawY + 65);
+                        if (u.role == TRAITOR && player.role == TRAITOR) {
+                            batch.draw(manager.get("OtherTextures/traitorIcon.png", Texture.class), drawX + 12, drawY + 70);
+                        }
                     }
                     if (player.inventory.hasRadar && (!player.canSee(u.x, u.y) || !(drawX + 50 > 0 && drawY + 50 > 0 && drawX < WIDTH && drawY < HEIGHT))) {
                         float radarX = MathUtils.clamp(drawX, 0, WIDTH - 30);
