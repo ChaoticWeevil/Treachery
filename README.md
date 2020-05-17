@@ -23,11 +23,12 @@ The traitor gets access to a Buy Menu containing many powerful weapons and items
 
 ###Known Bugs
 - Sometimes crashes on launch - can't find class
-- If connecting to a server fails the game will black screen
+- ~~If connecting to a server fails the game will black screen~~
 
 
 ###TO DO
 
+- ~~Add traitor icons above fellow traitors~~
 - Add more traitor weapons
 - Add more normal weapons - eg shotgun
 - Fix bugs above
