@@ -30,8 +30,10 @@ The traitor gets access to a Buy Menu containing many powerful weapons and items
 
 - ~~Add traitor icons above fellow traitors~~
 - Add more traitor weapons
-- Add more normal weapons - eg shotgun
+- Add more normal weapons
+    - eg shothun
 - Fix bugs above
 - Add detective
 - Add server options - detective, number of traitors etc
+    - Make server options customisable via commands
 - Add round timer
