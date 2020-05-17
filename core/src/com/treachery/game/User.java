@@ -1,5 +1,8 @@
 package com.treachery.game;
 
+/**
+ * Another player in the game.
+ */
 public class User {
     int ID;
     float x;
@@ -9,6 +12,7 @@ public class User {
     int role;
     boolean showName;
     String texture;
+
     public User(int ID, float x, float y, String username, boolean showName, String texture) {
         this.ID = ID;
         this.x = x;
@@ -17,5 +21,6 @@ public class User {
         this.showName = showName;
         this.texture = texture;
     }
+
     public User(){}
 }

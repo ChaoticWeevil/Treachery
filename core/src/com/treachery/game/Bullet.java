@@ -2,6 +2,11 @@ package com.treachery.game;
 
 import java.util.ArrayList;
 
+/**
+ * Stores data of a bullet currently active.
+ * ALl movement, collision etc is controlled by server.
+ * Just used for rendering on client
+ */
 public class Bullet {
     float x;
     float y;
@@ -37,5 +42,6 @@ public class Bullet {
         this.collision = collision;
         this.removeOnHit = removeOnHit;
     }
+
     public Bullet(){}
 }

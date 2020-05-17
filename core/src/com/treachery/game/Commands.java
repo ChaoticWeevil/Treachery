@@ -2,6 +2,10 @@ package com.treachery.game;
 
 import com.strongjoshua.console.CommandExecutor;
 
+/**
+ * Stores list of commands to be run via in game console
+ * Any functions within the class will be a runnable command
+ */
 public class Commands extends CommandExecutor {
     Game parent;
 
