@@ -120,7 +120,7 @@ public class Game implements Screen, InputProcessor {
             }
         }
         manager.finishLoading();
-        hud = new Hud(this);
+
 
         messageClasses.registerClasses(client);
         batch = new SpriteBatch();
@@ -134,6 +134,8 @@ public class Game implements Screen, InputProcessor {
         viewport.getCamera().position.x = WIDTH / 2f;
         viewport.getCamera().position.y = HEIGHT / 2f;
         shapeRenderer.setAutoShapeType(true);
+
+        hud = new Hud(this);
 
         drawBullet = new Sprite(manager.get("Projectiles/bullet.png", Texture.class));
         drawBullet.setOrigin(drawBullet.getWidth() / 2f, drawBullet.getHeight() / 2f);
@@ -438,8 +440,7 @@ public class Game implements Screen, InputProcessor {
         } else if (keycode == Input.Keys.R) {
             player.inventory.getSelectedWeapon().reload(this);
         } else if (keycode == Input.Keys.ESCAPE) {
-            dispose();
-            parent.changeScreen(new Menu(parent));
+            hud.escapeMenu.setVisible(!hud.escapeMenu.isVisible());
         } else if (keycode == Input.Keys.E) {
             //Check for dropped items
             for(int i =0; i< droppedWeapons.size(); ++i) {

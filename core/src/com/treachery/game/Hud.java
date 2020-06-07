@@ -23,6 +23,7 @@ public class Hud {
     Game parent;
     public Window buyMenu;
     public Window buyMenuDescription;
+    public Window escapeMenu;
     Stage stage = new Stage();
     Skin skin = new Skin(Gdx.files.internal("skin/star-soldier-ui.json"));
     boolean buyMenuOpen = false;
@@ -39,12 +40,13 @@ public class Hud {
      * @param parent current Game
      */
     public Hud(final Game parent) {
+        stage.setViewport(parent.viewport);
         this.parent = parent;
         buyMenu = new Window("Buy Menu", skin);
         buyMenu.setMovable(false);
         float newWidth = 600, newHeight = 400;
         buyMenu.setBounds(150,
-                (Gdx.graphics.getHeight() - newHeight) / 2, newWidth - 100, newHeight);
+                (Gdx.graphics.getHeight() - newHeight) / 2 - 75, newWidth - 100, newHeight);
         buyMenu.setVisible(false);
         buyMenu.getTitleLabel().setAlignment(Align.center);
         buyMenu.row();
@@ -75,7 +77,7 @@ public class Hud {
         stage.addActor(buyMenu);
         buyMenuDescription = new Window("Description", skin);
         buyMenuDescription.setBounds(716,
-                (Gdx.graphics.getHeight() - newHeight ) / 2, 500 , newHeight );
+                (Gdx.graphics.getHeight() - newHeight ) / 2 - 75, 500 , newHeight );
         buyMenuDescription.getTitleLabel().setAlignment(Align.center);
 
         lbl_WeaponName.setWrap(true);
@@ -120,6 +122,54 @@ public class Hud {
         buyMenuDescription.setDebug(false);
 
         stage.addActor(buyMenuDescription);
+
+        escapeMenu = new Window("Options", skin);
+        escapeMenu.getTitleLabel().setAlignment(Align.center);
+        escapeMenu.setBounds(545, 235, 275, 350);
+        escapeMenu.setMovable(false);
+
+        TextButton btnBack  = new TextButton("Back", skin);
+        btnBack.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                escapeMenu.setVisible(false);
+            }
+        });
+
+
+        TextButton btnDisconnect = new TextButton("Disconnect", skin);
+        btnDisconnect.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                parent.dispose();
+                parent.parent.changeScreen(new Menu(parent.parent));
+            }
+        });
+
+        TextButton btnExit = new TextButton("Exit", skin);
+        btnExit.addListener(new ClickListener() {
+            @Override
+            public void clicked(InputEvent event, float x, float y) {
+                Gdx.app.exit();
+            }
+        });
+
+        escapeMenu.setVisible(false);
+
+        escapeMenu.add(btnBack);
+        escapeMenu.row();
+        escapeMenu.add(btnDisconnect);
+        escapeMenu.row();
+        escapeMenu.add(btnExit);
+
+        escapeMenu.getCell(btnBack).width(250);
+        escapeMenu.getCell(btnDisconnect).width(250);
+        escapeMenu.getCell(btnExit).width(250);
+        escapeMenu.getCell(btnBack).height(75);
+        escapeMenu.getCell(btnDisconnect).height(75);
+        escapeMenu.getCell(btnExit).height(75);
+
+        stage.addActor(escapeMenu);
 
 
     }
