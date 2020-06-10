@@ -17,6 +17,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Timer;
 import com.badlogic.gdx.utils.viewport.StretchViewport;
 import com.esotericsoftware.kryonet.Client;
@@ -451,6 +452,14 @@ public class Game implements Screen, InputProcessor {
                     player.inventory.addWeapon(w.weapon);
                     client.sendTCP(new messageClasses.ItemPickedUp(w.x, w.y, w.weapon.ID));
                     droppedWeapons.remove(w);
+
+                }
+            }
+            for(int i =0; i< bodyList.size(); ++i) {
+                Vector2D b = bodyList.get(i);
+                Rectangle r = new Rectangle();
+                r.set(player.x, player.y, player.width, player.height);
+                if (r.contains(r.x, r.y)) {
 
                 }
             }
